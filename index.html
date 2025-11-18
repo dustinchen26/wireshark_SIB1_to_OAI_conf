@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireshark F1AP SIB1 到 OAI 配置轉換器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .output-section {
+            margin-top: 20px;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Wireshark F1AP SIB1 到 OAI 配置轉換器</h1>
+            <p>將 Wireshark F1AP 協議輸出自動轉換為 OAI 配置格式</p>
+        </div>
+        
+        <div class="info">
+            <p><strong>使用說明：</strong> 請在下方輸入區域貼上 Wireshark 的 F1AP 協議輸出，然後點擊「轉換」按鈕。</p>
+        </div>
+        
+        <div class="input-section">
+            <h2>輸入 (Wireshark F1AP 輸出)</h2>
+            <textarea id="inputText" placeholder="請在此處貼上 Wireshark F1AP 協議輸出..."></textarea>
+            <div class="button-container">
+                <button id="convertBtn">轉換</button>
+                <button id="clearBtn">清除</button>
+                <button id="exampleBtn">載入範例</button>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h2>輸出 (OAI 配置)</h2>
+            <textarea id="outputText" placeholder="轉換後的 OAI 配置將顯示在這裡..." readonly></textarea>
+            <div class="button-container">
+                <button id="copyBtn">複製到剪貼簿</button>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const convertBtn = document.getElementById('convertBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const exampleBtn = document.getElementById('exampleBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // 範例資料
+            const exampleData = `F1 Application Protocol (F1SetupRequest)
+    F1AP-PDU: initiatingMessage (0)
+        initiatingMessage
+            procedureCode: id-F1Setup (1)
+            criticality: reject (0)
+            value
+                F1SetupRequest
+                    protocolIEs: 5 items
+                        Item 0: id-TransactionID
+                            ProtocolIE-Field
+                                id: id-TransactionID (78)
+                                criticality: reject (0)
+                                value
+                                    TransactionID: 1
+                        Item 1: id-gNB-DU-ID
+                            ProtocolIE-Field
+                                id: id-gNB-DU-ID (42)
+                                criticality: reject (0)
+                                value
+                                    GNB-DU-ID: 3584
+                        Item 2: id-gNB-DU-Name
+                            ProtocolIE-Field
+                                id: id-gNB-DU-Name (45)
+                                criticality: ignore (1)
+                                value
+                                    GNB-DU-Name: du-rfsim
+                        Item 3: id-gNB-DU-Served-Cells-List
+                            ProtocolIE-Field
+                                id: id-gNB-DU-Served-Cells-List (44)
+                                criticality: reject (0)
+                                value
+                                    GNB-DU-Served-Cells-List: 1 item
+                                        Item 0: id-GNB-DU-Served-Cells-Item
+                                            ProtocolIE-SingleContainer
+                                                id: id-GNB-DU-Served-Cells-Item (43)
+                                                criticality: reject (0)
+                                                value
+                                                    GNB-DU-Served-Cells-Item
+                                                        served-Cell-Information
+                                                            nRCGI
+                                                                pLMN-Identity: 00f110
+                                                                    Mobile Country Code (MCC): Unknown (001)
+                                                                    Mobile Network Code (MNC): Unknown (01)
+                                                                nRCellIdentity: 000bc614e0 [bit length 36, 4 LSB pad bits, 0000 0000  0000 1011  1100 0110  0001 0100  1110 .... decimal value 12345678]
+                                                            nRPCI: 0
+                                                            fiveGS-TAC: 1 (0x000001)
+                                                            servedPLMNs: 1 item
+                                                                Item 0
+                                                                    ServedPLMNs-Item
+                                                                        pLMN-Identity: 00f110
+                                                                            Mobile Country Code (MCC): Unknown (001)
+                                                                            Mobile Network Code (MNC): Unknown (01)
+                                                                        iE-Extensions: 1 item
+                                                                            Item 0
+                                                                                ProtocolExtensionField
+                                                                                    id: 131
+                                                                                    criticality: ignore (1)
+                                                                                    extensionValue
+                                                                                        SliceSupportList: 1 item
+                                                                                            Item 0
+                                                                                                SliceSupportItem
+                                                                                                    sNSSAI
+                                                                                                        sST: 01
+                                                            nR-Mode-Info: tDD (1)
+                                                                tDD
+                                                                    nRFreqInfo
+                                                                        nRARFCN: 628776
+                                                                        freqBandListNr: 1 item
+                                                                            Item 0
+                                                                                FreqBandNrItem
+                                                                                    freqBandIndicatorNr: 78
+                                                                                    supportedSULBandList: 0 items
+                                                                    transmission-Bandwidth
+                                                                        nRSCS: scs30 (1)
+                                                                        nRNRB: nrb106 (14)
+                                                            measurementTimingConfiguration: 101133a4050000
+                                                                MeasurementTimingConfiguration
+                                                                    criticalExtensions: c1 (0)
+                                                                        c1: measTimingConf (0)
+                                                                            measTimingConf
+                                                                                measTiming: 1 item
+                                                                                    Item 0
+                                                                                        MeasTiming
+                                                                                            frequencyAndTiming
+                                                                                                carrierFreq: 630048
+                                                                                                ssbSubcarrierSpacing: kHz30 (1)
+                                                                                                ssb-MeasurementTimingConfiguration
+                                                                                                    periodicityAndOffset: sf20 (2)
+                                                                                                        sf20: 0
+                                                                                                    duration: sf1 (0)
+                                                        gNB-DU-System-Information
+                                                            mIB-message: 010606
+                                                                MIB
+                                                                    systemFrameNumber: 00 [bit length 6, 2 LSB pad bits, 0000 00.. decimal value 0]
+                                                                    subCarrierSpacingCommon: scs15or60 (0)
+                                                                    ssb-SubcarrierOffset: 8
+                                                                    dmrs-TypeA-Position: pos2 (0)
+                                                                    pdcch-ConfigSIB1
+                                                                        controlResourceSetZero: 6
+                                                                        searchSpaceZero: 0
+                                                                    cellBarred: barred (0)
+                                                                    intraFreqReselection: notAllowed (1)
+                                                                    spare: 80 [bit length 1, 7 LSB pad bits, 1... .... decimal value 1]
+                                                            sIB1-message: 92002808200201000001000bc614ea4213415800009a59c32cd7f816e0804000020106e1004000020106e180400002010001840d2140d8721d330000800009a7273865995188006b5335f7270124e31aa6353270b80143874020b01d80488cdec430
+                                                                SIB1
+                                                                    cellSelectionInfo
+                                                                        q-RxLevMin: -130dBm (-65)
+                                                                    cellAccessRelatedInfo
+                                                                        plmn-IdentityInfoList: 1 item
+                                                                            Item 0
+                                                                                PLMN-IdentityInfo
+                                                                                    plmn-IdentityList: 1 item
+                                                                                        Item 0
+                                                                                            PLMN-Identity
+                                                                                                mcc: 3 items
+                                                                                                    Item 0
+                                                                                                        MCC-MNC-Digit: 0
+                                                                                                    Item 1
+                                                                                                        MCC-MNC-Digit: 0
+                                                                                                    Item 2
+                                                                                                        MCC-MNC-Digit: 1
+                                                                                                mnc: 2 items
+                                                                                                    Item 0
+                                                                                                        MCC-MNC-Digit: 0
+                                                                                                    Item 1
+                                                                                                        MCC-MNC-Digit: 1
+                                                                                    trackingAreaCode: 000001 [bit length 24, 0000 0000  0000 0000  0000 0001 decimal value 1]
+                                                                                    cellIdentity: 000bc614e0 [bit length 36, 4 LSB pad bits, 0000 0000  0000 1011  1100 0110  0001 0100  1110 .... decimal value 12345678]
+                                                                                    cellReservedForOperatorUse: notReserved (1)
+                                                                    servingCellConfigCommon
+                                                                        downlinkConfigCommon
+                                                                            frequencyInfoDL
+                                                                                frequencyBandList: 1 item
+                                                                                    Item 0
+                                                                                        NR-MultiBandInfo
+                                                                                            freqBandIndicatorNR: 78
+                                                                                offsetToPointA: 86 PRBs
+                                                                                scs-SpecificCarrierList: 1 item
+                                                                                    Item 0
+                                                                                        SCS-SpecificCarrier
+                                                                                            offsetToCarrier: 0
+                                                                                            subcarrierSpacing: kHz30 (1)
+                                                                                            carrierBandwidth: 106
+                                                                            initialDownlinkBWP
+                                                                                genericParameters
+                                                                                    locationAndBandwidth: 28875
+                                                                                    subcarrierSpacing: kHz30 (1)
+                                                                                pdcch-ConfigCommon: setup (1)
+                                                                                    setup
+                                                                                        controlResourceSetZero: 12
+                                                                                        searchSpaceZero: 0
+                                                                                        commonSearchSpaceList: 3 items
+                                                                                            Item 0
+                                                                                                SearchSpace
+                                                                                                    searchSpaceId: 1
+                                                                                                    controlResourceSetId: 0
+                                                                                                    monitoringSlotPeriodicityAndOffset: sl1 (0)
+                                                                                                        sl1: NULL
+                                                                                                    monitoringSymbolsWithinSlot: 8000 [bit length 14, 2 LSB pad bits, 1000 0000  0000 00.. decimal value 8192]
+                                                                                                    nrofCandidates
+                                                                                                        aggregationLevel1: n0 (0)
+                                                                                                        aggregationLevel2: n0 (0)
+                                                                                                        aggregationLevel4: n2 (2)
+                                                                                                        aggregationLevel8: n0 (0)
+                                                                                                        aggregationLevel16: n0 (0)
+                                                                                                    searchSpaceType: common (0)
+                                                                                                        common
+                                                                                                            dci-Format0-0-AndFormat1-0
+                                                                                            Item 1
+                                                                                                SearchSpace
+                                                                                                    searchSpaceId: 2
+                                                                                                    controlResourceSetId: 0
+                                                                                                    monitoringSlotPeriodicityAndOffset: sl1 (0)
+                                                                                                        sl1: NULL
+                                                                                                    monitoringSymbolsWithinSlot: 8000 [bit length 14, 2 LSB pad bits, 1000 0000  0000 00.. decimal value 8192]
+                                                                                                    nrofCandidates
+                                                                                                        aggregationLevel1: n0 (0)
+                                                                                                        aggregationLevel2: n0 (0)
+                                                                                                        aggregationLevel4: n2 (2)
+                                                                                                        aggregationLevel8: n0 (0)
+                                                                                                        aggregationLevel16: n0 (0)
+                                                                                                    searchSpaceType: common (0)
+                                                                                                        common
+                                                                                                            dci-Format0-0-AndFormat1-0
+                                                                                            Item 2
+                                                                                                SearchSpace
+                                                                                                    searchSpaceId: 3
+                                                                                                    controlResourceSetId: 0
+                                                                                                    monitoringSlotPeriodicityAndOffset: sl1 (0)
+                                                                                                        sl1: NULL
+                                                                                                    monitoringSymbolsWithinSlot: 8000 [bit length 14, 2 LSB pad bits, 1000 0000  0000 00.. decimal value 8192]
+                                                                                                    nrofCandidates
+                                                                                                        aggregationLevel1: n0 (0)
+                                                                                                        aggregationLevel2: n0 (0)
+                                                                                                        aggregationLevel4: n2 (2)
+                                                                                                        aggregationLevel8: n0 (0)
+                                                                                                        aggregationLevel16: n0 (0)
+                                                                                                    searchSpaceType: common (0)
+                                                                                                        common
+                                                                                                            dci-Format0-0-AndFormat1-0
+                                                                                        searchSpaceSIB1: 0
+                                                                                        searchSpaceOtherSystemInformation: 3
+                                                                                        pagingSearchSpace: 2
+                                                                                        ra-SearchSpace: 1
+                                                                                pdsch-ConfigCommon: setup (1)
+                                                                                    setup
+                                                                                        pdsch-TimeDomainAllocationList: 3 items
+                                                                                            Item 0
+                                                                                                PDSCH-TimeDomainResourceAllocation
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 40
+                                                                                            Item 1
+                                                                                                PDSCH-TimeDomainResourceAllocation
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 54
+                                                                                            Item 2
+                                                                                                PDSCH-TimeDomainResourceAllocation
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 57
+                                                                            bcch-Config
+                                                                                modificationPeriodCoeff: n2 (0)
+                                                                            pcch-Config
+                                                                                defaultPagingCycle: rf256 (3)
+                                                                                nAndPagingFrameOffset: quarterT (2)
+                                                                                    quarterT: 1
+                                                                                ns: one (2)
+                                                                                firstPDCCH-MonitoringOccasionOfPO: sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT (3)
+                                                                                    sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT: 1 item
+                                                                                        Item 0
+                                                                                            sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT item: 0
+                                                                        uplinkConfigCommon
+                                                                            frequencyInfoUL
+                                                                                scs-SpecificCarrierList: 1 item
+                                                                                    Item 0
+                                                                                        SCS-SpecificCarrier
+                                                                                            offsetToCarrier: 0
+                                                                                            subcarrierSpacing: kHz30 (1)
+                                                                                            carrierBandwidth: 106
+                                                                                p-Max: 20 dBm
+                                                                            initialUplinkBWP
+                                                                                genericParameters
+                                                                                    locationAndBandwidth: 28875
+                                                                                    subcarrierSpacing: kHz30 (1)
+                                                                                rach-ConfigCommon: setup (1)
+                                                                                    setup
+                                                                                        rach-ConfigGeneric
+                                                                                            prach-ConfigurationIndex: 98
+                                                                                            msg1-FDM: one (0)
+                                                                                            msg1-FrequencyStart: 0
+                                                                                            zeroCorrelationZoneConfig: 13
+                                                                                            preambleReceivedTargetPower: -96 dBm
+                                                                                            preambleTransMax: n10 (6)
+                                                                                            powerRampingStep: dB2 (1)
+                                                                                            ra-ResponseWindow: sl20 (5)
+                                                                                        ssb-perRACH-OccasionAndCB-PreamblesPerSSB: one (3)
+                                                                                            one: n60 (14)
+                                                                                        ra-ContentionResolutionTimer: sf64 (7)
+                                                                                        rsrp-ThresholdSSB: -138dBm <= SS-RSRP < -137dBm (19)
+                                                                                        prach-RootSequenceIndex: l139 (1)
+                                                                                            l139: 1
+                                                                                        msg1-SubcarrierSpacing: kHz30 (1)
+                                                                                        restrictedSetConfig: unrestrictedSet (0)
+                                                                                pusch-ConfigCommon: setup (1)
+                                                                                    setup
+                                                                                        pusch-TimeDomainAllocationList: 2 items
+                                                                                            Item 0
+                                                                                                PUSCH-TimeDomainResourceAllocation
+                                                                                                    k2: 6
+                                                                                                    mappingType: typeB (1)
+                                                                                                    startSymbolAndLength: 41
+                                                                                            Item 1
+                                                                                                PUSCH-TimeDomainResourceAllocation
+                                                                                                    k2: 6
+                                                                                                    mappingType: typeB (1)
+                                                                                                    startSymbolAndLength: 38
+                                                                                        msg3-DeltaPreamble: 2dB (1)
+                                                                                        p0-NominalWithGrant: -90 dBm
+                                                                                pucch-ConfigCommon: setup (1)
+                                                                                    setup
+                                                                                        pucch-ResourceCommon: 0
+                                                                                        pucch-GroupHopping: neither (0)
+                                                                                        hoppingId: 40
+                                                                                        p0-nominal: -90 dBm
+                                                                            timeAlignmentTimerCommon: infinity (7)
+                                                                        ssb-PositionsInBurst
+                                                                            inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
+                                                                        ssb-PeriodicityServingCell: ms20 (2)
+                                                                        tdd-UL-DL-ConfigurationCommon
+                                                                            referenceSubcarrierSpacing: kHz30 (1)
+                                                                            pattern1
+                                                                                dl-UL-TransmissionPeriodicity: ms5 (6)
+                                                                                nrofDownlinkSlots: 7
+                                                                                nrofDownlinkSymbols: 6
+                                                                                nrofUplinkSlots: 2
+                                                                                nrofUplinkSymbols: 4
+                                                                        ss-PBCH-BlockPower: -25 dBm
+                                                                    ue-TimersAndConstants
+                                                                        t300: ms400 (3)
+                                                                        t301: ms400 (3)
+                                                                        t310: ms2000 (6)
+                                                                        n310: n10 (6)
+                                                                        t311: ms3000 (1)
+                                                                        n311: n1 (0)
+                                                                        t319: ms400 (3)
+                        Item 4: id-GNB-DU-RRC-Version
+                            ProtocolIE-Field
+                                id: id-GNB-DU-RRC-Version (171)
+                                criticality: reject (0)
+                                value
+                                    RRC-Version
+                                        latest-RRC-Version: 00 [bit length 3, 5 LSB pad bits, 000. .... decimal value 0]
+                                        iE-Extensions: 1 item
+                                            Item 0
+                                                ProtocolExtensionField
+                                                    id: 199
+                                                    criticality: ignore (1)
+                                                    extensionValue
+                                                        17.3.0`;
+
+            // 載入範例資料
+            exampleBtn.addEventListener('click', function() {
+                inputText.value = exampleData;
+                showStatus('已載入範例資料', 'success');
+            });
+
+            // 清除輸入和輸出
+            clearBtn.addEventListener('click', function() {
+                inputText.value = '';
+                outputText.value = '';
+                hideStatus();
+            });
+
+            // 複製到剪貼簿
+            copyBtn.addEventListener('click', function() {
+                if (outputText.value) {
+                    outputText.select();
+                    document.execCommand('copy');
+                    showStatus('已複製到剪貼簿', 'success');
+                } else {
+                    showStatus('沒有內容可複製', 'error');
+                }
+            });
+
+            // 轉換功能
+            convertBtn.addEventListener('click', function() {
+                const input = inputText.value.trim();
+                if (!input) {
+                    showStatus('請輸入Wireshark F1AP協議輸出', 'error');
+                    return;
+                }
+
+                try {
+                    const config = convertWiresharkToOAI(input);
+                    outputText.value = config;
+                    showStatus('轉換成功！', 'success');
+                } catch (error) {
+                    showStatus('轉換失敗: ' + error.message, 'error');
+                    console.error(error);
+                }
+            });
+
+            // 轉換函數
+            function convertWiresharkToOAI(input) {
+                // 提取參數的函數
+                const extractValue = (pattern, defaultValue = null) => {
+                    const match = input.match(pattern);
+                    return match ? match[1] : defaultValue;
+                };
+
+                // 提取數字值
+                const extractNumber = (pattern, defaultValue = 0) => {
+                    const match = input.match(pattern);
+                    return match ? parseInt(match[1], 10) : defaultValue;
+                };
+
+                // 提取十六進制值
+                const extractHex = (pattern, defaultValue = 0) => {
+                    const match = input.match(pattern);
+                    return match ? '0x' + parseInt(match[1], 10).toString(16) : defaultValue;
+                };
+
+                // 提取參數 - 修正版本
+                const gNB_DU_ID = extractNumber(/GNB-DU-ID:\s*(\d+)/);
+                const gNB_DU_Name = extractValue(/GNB-DU-Name:\s*([^\n\r]+)/, 'du-rfsim');
+                const tracking_area_code = extractNumber(/fiveGS-TAC:\s*(\d+)/);
+                const nr_cellid = extractNumber(/decimal value\s*(\d+)/);
+                const physCellId = extractNumber(/nRPCI:\s*(\d+)/);
+                const absoluteFrequencySSB = extractNumber(/carrierFreq:\s*(\d+)/);
+                const dl_frequencyBand = extractNumber(/freqBandIndicatorNr:\s*(\d+)/);
+                const dl_absoluteFrequencyPointA = extractNumber(/nRARFCN:\s*(\d+)/);
+                const dl_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/);
+                const dl_subcarrierSpacing = 1; // kHz30 (1)
+                const dl_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/);
+                const initialDLBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/);
+                const initialDLBWPsubcarrierSpacing = 1; // kHz30 (1)
+                const initialDLBWPcontrolResourceSetZero = extractNumber(/controlResourceSetZero:\s*(\d+)/);
+                const initialDLBWPsearchSpaceZero = extractNumber(/searchSpaceZero:\s*(\d+)/);
+                const ul_frequencyBand = extractNumber(/freqBandIndicatorNR:\s*(\d+)/);
+                const ul_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/);
+                const ul_subcarrierSpacing = 1; // kHz30 (1)
+                const ul_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/);
+                const pMax = extractNumber(/p-Max:\s*(\d+)/);
+                const initialULBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/);
+                const initialULBWPsubcarrierSpacing = 1; // kHz30 (1)
+                const prach_ConfigurationIndex = extractNumber(/prach-ConfigurationIndex:\s*(\d+)/);
+                const prach_msg1_FDM = 0; // one (0)
+                const prach_msg1_FrequencyStart = extractNumber(/msg1-FrequencyStart:\s*(\d+)/);
+                const zeroCorrelationZoneConfig = extractNumber(/zeroCorrelationZoneConfig:\s*(\d+)/);
+                const preambleReceivedTargetPower = extractNumber(/preambleReceivedTargetPower:\s*([-\d]+)/);
+                const preambleTransMax = 6; // n10 (6)
+                const powerRampingStep = 1; // dB2 (1)
+                const ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR = 4; // one (3) -> 4
+                const ssb_perRACH_OccasionAndCB_PreamblesPerSSB = 14; // n60 (14)
+                const ra_ContentionResolutionTimer = 7; // sf64 (7)
+                const rsrp_ThresholdSSB = 19; // -138dBm <= SS-RSRP < -137dBm (19)
+                const prach_RootSequenceIndex_PR = 2; // l139 (1) -> 2
+                const prach_RootSequenceIndex = 1; // l139: 1
+                const msg1_SubcarrierSpacing = 1; // kHz30 (1)
+                const restrictedSetConfig = 0; // unrestrictedSet (0)
+                const msg3_DeltaPreamble = 1; // 2dB (1)
+                const p0_NominalWithGrant = extractNumber(/p0-NominalWithGrant:\s*([-\d]+)/);
+                const pucchGroupHopping = 0; // neither (0)
+                const hoppingId = extractNumber(/hoppingId:\s*(\d+)/);
+                const p0_nominal = extractNumber(/p0-nominal:\s*([-\d]+)/);
+                const ssb_PositionsInBurst_Bitmap = 1; // inOneGroup: 80 [bit length 8, ... decimal value 128] -> 1
+                const ssb_periodicityServingCell = 2; // ms20 (2)
+                const dmrs_TypeA_Position = 0; // pos2 (0)
+                const subcarrierSpacing = 1; // kHz30 (1)
+                const referenceSubcarrierSpacing = 1; // kHz30 (1)
+                const dl_UL_TransmissionPeriodicity = 6; // ms5 (6)
+                const nrofDownlinkSlots = extractNumber(/nrofDownlinkSlots:\s*(\d+)/);
+                const nrofDownlinkSymbols = extractNumber(/nrofDownlinkSymbols:\s*(\d+)/);
+                const nrofUplinkSlots = extractNumber(/nrofUplinkSlots:\s*(\d+)/);
+                const nrofUplinkSymbols = extractNumber(/nrofUplinkSymbols:\s*(\d+)/);
+                const ssPBCH_BlockPower = extractNumber(/ss-PBCH-BlockPower:\s*([-\d]+)/);
+
+                // 修正的十六進制轉換
+                const gNB_ID_hex = '0x' + (gNB_DU_ID).toString(16);
+                const gNB_DU_ID_hex = '0x' + (gNB_DU_ID).toString(16);
+
+                // 構建OAI配置 - 使用修正的十六進制值
+                return `Active_gNBs = ( "${gNB_DU_Name}");
+# Asn1_verbosity, choice in: none, info, annoying
+Asn1_verbosity = "none";
+
+gNBs =
+(
+ {
+    ////////// Identification parameters:
+    gNB_ID = ${gNB_ID_hex};
+    gNB_DU_ID = ${gNB_DU_ID_hex};
+    gNB_name  =  "${gNB_DU_Name}";
+
+    // Tracking area code, 0x0000 and 0xfffe are reserved values
+    tracking_area_code  =  ${tracking_area_code};
+    plmn_list = ({ mcc = 001; mnc = 01; mnc_length = 2; snssaiList = ({ sst = 1; }) });
+
+    nr_cellid = ${nr_cellid}L;
+
+    ////////// Physical parameters:
+
+    min_rxtxtime = 4;
+
+    servingCellConfigCommon = (
+    {
+ #spCellConfigCommon
+
+      physCellId                                               = ${physCellId};
+
+#  downlinkConfigCommon
+    #frequencyInfoDL
+      # this is 3600 MHz + 43 PRBs@30kHz SCS (same as initial BWP)
+      absoluteFrequencySSB                                      = ${absoluteFrequencySSB};
+      dl_frequencyBand                                          = ${dl_frequencyBand};
+      # this is 3600 MHz
+      dl_absoluteFrequencyPointA                                = ${dl_absoluteFrequencyPointA};
+      #scs-SpecificCarrierList
+        dl_offstToCarrier                                       = ${dl_offstToCarrier};
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+        dl_subcarrierSpacing                                    = ${dl_subcarrierSpacing};
+        dl_carrierBandwidth                                     = ${dl_carrierBandwidth};
+     #initialDownlinkBWP
+      #genericParameters
+        # this is RBstart=27,L=48 (275*(L-1))+RBstart
+        initialDLBWPlocationAndBandwidth                         = ${initialDLBWPlocationAndBandwidth}; # 6366 12925 12956 28875 12952
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+        initialDLBWPsubcarrierSpacing                             = ${initialDLBWPsubcarrierSpacing};
+      #pdcch-ConfigCommon
+        initialDLBWPcontrolResourceSetZero                        = ${initialDLBWPcontrolResourceSetZero};
+        initialDLBWPsearchSpaceZero                               = ${initialDLBWPsearchSpaceZero};
+
+  #uplinkConfigCommon
+     #frequencyInfoUL
+      ul_frequencyBand                                             = ${ul_frequencyBand};
+      #scs-SpecificCarrierList
+      ul_offstToCarrier                                            = ${ul_offstToCarrier};
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+      ul_subcarrierSpacing                                         = ${ul_subcarrierSpacing};
+      ul_carrierBandwidth                                          = ${ul_carrierBandwidth};
+      pMax                                                         = ${pMax};
+     #initialUplinkBWP
+      #genericParameters
+        initialULBWPlocationAndBandwidth                           = ${initialULBWPlocationAndBandwidth};
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+        initialULBWPsubcarrierSpacing                              = ${initialULBWPsubcarrierSpacing};
+      #rach-ConfigCommon
+        #rach-ConfigGeneric
+          prach_ConfigurationIndex                                 = ${prach_ConfigurationIndex};
+#prach_msg1_FDM
+#0 = one, 1=two, 2=four, 3=eight
+          prach_msg1_FDM                                           = ${prach_msg1_FDM};
+          prach_msg1_FrequencyStart                                = ${prach_msg1_FrequencyStart};
+          zeroCorrelationZoneConfig                                = ${zeroCorrelationZoneConfig};
+          preambleReceivedTargetPower                              = ${preambleReceivedTargetPower};
+#preamblTransMax (0...10) = (3,4,5,6,7,8,10,20,50,100,200)
+          preambleTransMax                                         = ${preambleTransMax};
+#powerRampingStep
+# 0=dB0,1=dB2,2=dB4,3=dB6
+        powerRampingStep                                           = ${powerRampingStep};
+#ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR
+#1=oneeighth,2=onefourth,3=half,4=one,5=two,6=four,7=eight,8=sixteen
+        ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR               = ${ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR};
+#one (0..15) 4,8,12,16,...60,64
+        ssb_perRACH_OccasionAndCB_PreamblesPerSSB                  = ${ssb_perRACH_OccasionAndCB_PreamblesPerSSB};
+#ra_ContentionResolutionTimer
+#(0..7) 8,16,24,32,40,48,56,64
+        ra_ContentionResolutionTimer                               = ${ra_ContentionResolutionTimer};
+        rsrp_ThresholdSSB                                          = ${rsrp_ThresholdSSB};
+#prach-RootSequenceIndex_PR
+#1 = 839, 2 = 139
+        prach_RootSequenceIndex_PR                                 = ${prach_RootSequenceIndex_PR};
+        prach_RootSequenceIndex                                    = ${prach_RootSequenceIndex};
+        # SCS for msg1, can only be 15 for 30 kHz < 6 GHz, takes precendence over the one derived from prach-ConfigIndex
+        #
+        msg1_SubcarrierSpacing                                     = ${msg1_SubcarrierSpacing},
+# restrictedSetConfig
+# 0=unrestricted, 1=restricted type A, 2=restricted type B
+        restrictedSetConfig                                        = ${restrictedSetConfig},
+
+        msg3_DeltaPreamble                                         = ${msg3_DeltaPreamble};
+        p0_NominalWithGrant                                        =${p0_NominalWithGrant};
+
+# pucch-ConfigCommon setup :
+# pucchGroupHopping
+# 0 = neither, 1= group hopping, 2=sequence hopping
+        pucchGroupHopping                                          = ${pucchGroupHopping};
+        hoppingId                                                  = ${hoppingId};
+        p0_nominal                                                 = ${p0_nominal};
+
+      ssb_PositionsInBurst_Bitmap                                  = ${ssb_PositionsInBurst_Bitmap};
+
+# ssb_periodicityServingCell
+# 0 = ms5, 1=ms10, 2=ms20, 3=ms40, 4=ms80, 5=ms160, 6=spare2, 7=spare1
+      ssb_periodicityServingCell                                   = ${ssb_periodicityServingCell};
+
+# dmrs_TypeA_position
+# 0 = pos2, 1 = pos3
+      dmrs_TypeA_Position                                           = ${dmrs_TypeA_Position};
+
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+      subcarrierSpacing                                            = ${subcarrierSpacing};
+
+
+  #tdd-UL-DL-ConfigurationCommon
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+      referenceSubcarrierSpacing                                   = ${referenceSubcarrierSpacing};
+      # pattern1
+      # dl_UL_TransmissionPeriodicity
+      # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
+      dl_UL_TransmissionPeriodicity                                = ${dl_UL_TransmissionPeriodicity};
+      nrofDownlinkSlots                                            = ${nrofDownlinkSlots};
+      nrofDownlinkSymbols                                          = ${nrofDownlinkSymbols};
+      nrofUplinkSlots                                              = ${nrofUplinkSlots};
+      nrofUplinkSymbols                                            = ${nrofUplinkSymbols};
+
+      ssPBCH_BlockPower                                            = ${ssPBCH_BlockPower};
+     }
+
+  );
+
+    # ------- SCTP definitions
+    SCTP :
+    {
+        # Number of streams to use in input/output
+        SCTP_INSTREAMS  = 2;
+        SCTP_OUTSTREAMS = 2;
+    };
+  }
+);
+
+MACRLCs = ({
+    num_cc              = 1;
+    tr_s_preference     = "local_L1";
+    tr_n_preference     = "f1";
+    local_n_address     = "127.0.0.4";
+    remote_n_address    = "127.0.0.3";
+    local_n_portd       = 2152;
+    remote_n_portd      = 2152;
+    pusch_FailureThres  = 1000;
+});
+
+L1s = ({
+    num_cc = 1;
+    tr_n_preference = "local_mac";
+    prach_dtx_threshold = 200;
+    pucch0_dtx_threshold = 150;
+    ofdm_offset_divisor = 8; #set this to UINT_MAX for offset 0
+});
+
+RUs = ({
+    local_rf       = "yes"
+    nb_tx          = 1
+    nb_rx          = 1
+    att_tx         = 0
+    att_rx         = 0;
+    bands          = [78];
+    max_pdschReferenceSignalPower = -27;
+    max_rxgain                    = 114;
+    eNB_instances  = [0];
+    clock_src = "internal";
+});
+
+rfsimulator: {
+  serveraddr = "server";
+  serverport = 4043;
+  options = (); #("saviq"); or/and "chanmod"
+  modelname = "AWGN";
+  IQfile = "/tmp/rfsimulator.iqs"
+}
+
+log_config: {
+  global_log_level = "info";
+  hw_log_level     = "info";
+  nr_phy_log_level = "info";
+  nr_mac_log_level = "info";
+  rlc_log_level    = "info";
+  pdcp_log_level   = "info";
+  rrc_log_level    = "info";
+  f1ap_log_level   = "info";
+  ngap_log_level   = "debug";
+};
+
+e2_agent = {
+  near_ric_ip_addr = "127.0.0.1";
+  sm_dir = "/usr/local/lib/flexric/"
+};`;
+            }
+
+            // 顯示狀態消息
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status ' + type;
+                statusMessage.style.display = 'block';
+                
+                // 3秒後自動隱藏
+                setTimeout(hideStatus, 3000);
+            }
+
+            // 隱藏狀態消息
+            function hideStatus() {
+                statusMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
