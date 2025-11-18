@@ -554,7 +554,17 @@
                 const preambleTransMax = 6; // n10 (6)
                 const powerRampingStep = 1; // dB2 (1)
                 const ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR = 4; // one (3) -> 4
-                const ssb_perRACH_OccasionAndCB_PreamblesPerSSB = 14; // n60 (14)
+                
+                // 修正：動態提取 ssb_perRACH_OccasionAndCB_PreamblesPerSSB
+                const ssb_perRACH_OccasionAndCB_PreamblesPerSSB = (() => {
+                    // 尋找 ssb-perRACH-OccasionAndCB-PreamblesPerSSB 區塊
+                    const ssbMatch = input.match(/ssb-perRACH-OccasionAndCB-PreamblesPerSSB:[^\n]*\n\s*one:\s*[^(]*\((\d+)\)/);
+                    if (ssbMatch) {
+                        return parseInt(ssbMatch[1], 10);
+                    }
+                    return 14; // 默認值
+                })();
+                
                 const ra_ContentionResolutionTimer = 7; // sf64 (7)
                 const rsrp_ThresholdSSB = 19; // -138dBm <= SS-RSRP < -137dBm (19)
                 const prach_RootSequenceIndex_PR = 2; // l139 (1) -> 2
