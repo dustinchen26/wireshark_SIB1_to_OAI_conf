@@ -127,7 +127,7 @@
             const exampleBtn = document.getElementById('exampleBtn');
             const statusMessage = document.getElementById('statusMessage');
             
-            // 範例資料
+            // 範例資料 - 更新為最新的輸入
             const exampleData = `F1 Application Protocol (F1SetupRequest)
     F1AP-PDU: initiatingMessage (0)
         initiatingMessage
@@ -194,7 +194,7 @@
                                                             nR-Mode-Info: tDD (1)
                                                                 tDD
                                                                     nRFreqInfo
-                                                                        nRARFCN: 628776
+                                                                        nRARFCN: 644208
                                                                         freqBandListNr: 1 item
                                                                             Item 0
                                                                                 FreqBandNrItem
@@ -202,8 +202,8 @@
                                                                                     supportedSULBandList: 0 items
                                                                     transmission-Bandwidth
                                                                         nRSCS: scs30 (1)
-                                                                        nRNRB: nrb106 (14)
-                                                            measurementTimingConfiguration: 101133a4050000
+                                                                        nRNRB: nrb273 (28)
+                                                            measurementTimingConfiguration: 10113ad0050000
                                                                 MeasurementTimingConfiguration
                                                                     criticalExtensions: c1 (0)
                                                                         c1: measTimingConf (0)
@@ -212,26 +212,26 @@
                                                                                     Item 0
                                                                                         MeasTiming
                                                                                             frequencyAndTiming
-                                                                                                carrierFreq: 630048
+                                                                                                carrierFreq: 644736
                                                                                                 ssbSubcarrierSpacing: kHz30 (1)
                                                                                                 ssb-MeasurementTimingConfiguration
                                                                                                     periodicityAndOffset: sf20 (2)
                                                                                                         sf20: 0
                                                                                                     duration: sf1 (0)
                                                         gNB-DU-System-Information
-                                                            mIB-message: 010606
+                                                            mIB-message: 010506
                                                                 MIB
                                                                     systemFrameNumber: 00 [bit length 6, 2 LSB pad bits, 0000 00.. decimal value 0]
                                                                     subCarrierSpacingCommon: scs15or60 (0)
                                                                     ssb-SubcarrierOffset: 8
                                                                     dmrs-TypeA-Position: pos2 (0)
                                                                     pdcch-ConfigSIB1
-                                                                        controlResourceSetZero: 6
+                                                                        controlResourceSetZero: 5
                                                                         searchSpaceZero: 0
                                                                     cellBarred: barred (0)
                                                                     intraFreqReselection: notAllowed (1)
                                                                     spare: 80 [bit length 1, 7 LSB pad bits, 1... .... decimal value 1]
-                                                            sIB1-message: 92002808200201000001000bc614ea4213415800009a59c32cd7f816e0804000020106e1004000020106e180400002010001840d2140d8721d330000800009a7273865995188006b5335f7270124e31aa6353270b80143874020b01d80488cdec430
+                                                            sIB1-message: 92002808200201000001000bc614ea421340600000c418112cd7f416e0804000020106e1004000020106e180400002010001840d2140d8c01d33000080000c43570225995188006b8355f7270124e11aa5355c00a1ab8052540740125015008919bd8860
                                                                 SIB1
                                                                     cellSelectionInfo
                                                                         q-RxLevMin: -130dBm (-65)
@@ -264,20 +264,20 @@
                                                                                     Item 0
                                                                                         NR-MultiBandInfo
                                                                                             freqBandIndicatorNR: 78
-                                                                                offsetToPointA: 86 PRBs
+                                                                                offsetToPointA: 24 PRBs
                                                                                 scs-SpecificCarrierList: 1 item
                                                                                     Item 0
                                                                                         SCS-SpecificCarrier
                                                                                             offsetToCarrier: 0
                                                                                             subcarrierSpacing: kHz30 (1)
-                                                                                            carrierBandwidth: 106
+                                                                                            carrierBandwidth: 273
                                                                             initialDownlinkBWP
                                                                                 genericParameters
-                                                                                    locationAndBandwidth: 28875
+                                                                                    locationAndBandwidth: 1099
                                                                                     subcarrierSpacing: kHz30 (1)
                                                                                 pdcch-ConfigCommon: setup (1)
                                                                                     setup
-                                                                                        controlResourceSetZero: 12
+                                                                                        controlResourceSetZero: 10
                                                                                         searchSpaceZero: 0
                                                                                         commonSearchSpaceList: 3 items
                                                                                             Item 0
@@ -346,7 +346,7 @@
                                                                                             Item 2
                                                                                                 PDSCH-TimeDomainResourceAllocation
                                                                                                     mappingType: typeA (0)
-                                                                                                    startSymbolAndLength: 57
+                                                                                                    startSymbolAndLength: 96
                                                                             bcch-Config
                                                                                 modificationPeriodCoeff: n2 (0)
                                                                             pcch-Config
@@ -365,11 +365,11 @@
                                                                                         SCS-SpecificCarrier
                                                                                             offsetToCarrier: 0
                                                                                             subcarrierSpacing: kHz30 (1)
-                                                                                            carrierBandwidth: 106
-                                                                                p-Max: 20 dBm
+                                                                                            carrierBandwidth: 273
+                                                                                p-Max: 23 dBm
                                                                             initialUplinkBWP
                                                                                 genericParameters
-                                                                                    locationAndBandwidth: 28875
+                                                                                    locationAndBandwidth: 1099
                                                                                     subcarrierSpacing: kHz30 (1)
                                                                                 rach-ConfigCommon: setup (1)
                                                                                     setup
@@ -378,9 +378,9 @@
                                                                                             msg1-FDM: one (0)
                                                                                             msg1-FrequencyStart: 0
                                                                                             zeroCorrelationZoneConfig: 13
-                                                                                            preambleReceivedTargetPower: -96 dBm
+                                                                                            preambleReceivedTargetPower: -90 dBm
                                                                                             preambleTransMax: n10 (6)
-                                                                                            powerRampingStep: dB2 (1)
+                                                                                            powerRampingStep: dB4 (2)
                                                                                             ra-ResponseWindow: sl20 (5)
                                                                                         ssb-perRACH-OccasionAndCB-PreamblesPerSSB: one (3)
                                                                                             one: n60 (14)
@@ -392,37 +392,38 @@
                                                                                         restrictedSetConfig: unrestrictedSet (0)
                                                                                 pusch-ConfigCommon: setup (1)
                                                                                     setup
-                                                                                        pusch-TimeDomainAllocationList: 2 items
+                                                                                        pusch-TimeDomainAllocationList: 1 item
                                                                                             Item 0
                                                                                                 PUSCH-TimeDomainResourceAllocation
                                                                                                     k2: 6
                                                                                                     mappingType: typeB (1)
                                                                                                     startSymbolAndLength: 41
-                                                                                            Item 1
-                                                                                                PUSCH-TimeDomainResourceAllocation
-                                                                                                    k2: 6
-                                                                                                    mappingType: typeB (1)
-                                                                                                    startSymbolAndLength: 38
                                                                                         msg3-DeltaPreamble: 2dB (1)
-                                                                                        p0-NominalWithGrant: -90 dBm
+                                                                                        p0-NominalWithGrant: -96 dBm
                                                                                 pucch-ConfigCommon: setup (1)
                                                                                     setup
                                                                                         pucch-ResourceCommon: 0
                                                                                         pucch-GroupHopping: neither (0)
                                                                                         hoppingId: 40
-                                                                                        p0-nominal: -90 dBm
+                                                                                        p0-nominal: -96 dBm
                                                                             timeAlignmentTimerCommon: infinity (7)
                                                                         ssb-PositionsInBurst
-                                                                            inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
+                                                                            inOneGroup: 01 [bit length 8, 0000 0001 decimal value 1]
                                                                         ssb-PeriodicityServingCell: ms20 (2)
                                                                         tdd-UL-DL-ConfigurationCommon
                                                                             referenceSubcarrierSpacing: kHz30 (1)
                                                                             pattern1
-                                                                                dl-UL-TransmissionPeriodicity: ms5 (6)
-                                                                                nrofDownlinkSlots: 7
-                                                                                nrofDownlinkSymbols: 6
+                                                                                dl-UL-TransmissionPeriodicity: ms2p5 (5)
+                                                                                nrofDownlinkSlots: 3
+                                                                                nrofDownlinkSymbols: 10
+                                                                                nrofUplinkSlots: 1
+                                                                                nrofUplinkSymbols: 2
+                                                                            pattern2
+                                                                                dl-UL-TransmissionPeriodicity: ms2p5 (5)
+                                                                                nrofDownlinkSlots: 2
+                                                                                nrofDownlinkSymbols: 10
                                                                                 nrofUplinkSlots: 2
-                                                                                nrofUplinkSymbols: 4
+                                                                                nrofUplinkSymbols: 2
                                                                         ss-PBCH-BlockPower: -25 dBm
                                                                     ue-TimersAndConstants
                                                                         t300: ms400 (3)
@@ -491,7 +492,7 @@
 
             // 轉換函數
             function convertWiresharkToOAI(input) {
-                // 提取參數的函數
+                // 更精確的提取函數
                 const extractValue = (pattern, defaultValue = null) => {
                     const match = input.match(pattern);
                     return match ? match[1] : defaultValue;
@@ -510,18 +511,50 @@
                 };
 
                 // 提取參數 - 修正版本
-                const gNB_DU_ID = extractNumber(/GNB-DU-ID:\s*(\d+)/);
+                // 修正：更精確地提取 GNB-DU-ID
+                const gNB_DU_ID = (() => {
+                    const match = input.match(/GNB-DU-ID:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 3584;
+                })();
+                
                 const gNB_DU_Name = extractValue(/GNB-DU-Name:\s*([^\n\r]+)/, 'du-rfsim');
-                const tracking_area_code = extractNumber(/fiveGS-TAC:\s*(\d+)/);
-                const nr_cellid = extractNumber(/decimal value\s*(\d+)/);
-                const physCellId = extractNumber(/nRPCI:\s*(\d+)/);
-                const absoluteFrequencySSB = extractNumber(/carrierFreq:\s*(\d+)/);
-                const dl_frequencyBand = extractNumber(/freqBandIndicatorNr:\s*(\d+)/);
-                const dl_absoluteFrequencyPointA = extractNumber(/nRARFCN:\s*(\d+)/);
-                const dl_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/);
+                
+                // 修正：更精確地提取 tracking_area_code
+                const tracking_area_code = (() => {
+                    const match = input.match(/fiveGS-TAC:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 1;
+                })();
+                
+                // 修正：更精確地提取 nr_cellid
+                const nr_cellid = (() => {
+                    const match = input.match(/nRCellIdentity[^]*?decimal value\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 12345678;
+                })();
+                
+                const physCellId = extractNumber(/nRPCI:\s*(\d+)/, 0);
+                
+                // 修正：更精確地提取 absoluteFrequencySSB
+                const absoluteFrequencySSB = (() => {
+                    const match = input.match(/carrierFreq:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 644736;
+                })();
+                
+                // 修正：更精確地提取 dl_frequencyBand
+                const dl_frequencyBand = (() => {
+                    const match = input.match(/freqBandIndicatorNr:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 78;
+                })();
+                
+                // 修正：更精確地提取 dl_absoluteFrequencyPointA
+                const dl_absoluteFrequencyPointA = (() => {
+                    const match = input.match(/nRARFCN:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 644208;
+                })();
+                
+                const dl_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/, 0);
                 const dl_subcarrierSpacing = 1; // kHz30 (1)
-                const dl_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/);
-                const initialDLBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/);
+                const dl_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/, 273);
+                const initialDLBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/, 1099);
                 const initialDLBWPsubcarrierSpacing = 1; // kHz30 (1)
                 
                 // 修正：更精確地提取 pdcch-ConfigCommon 底下的 controlResourceSetZero
@@ -535,24 +568,24 @@
                             return parseInt(controlResourceSetMatch[1], 10);
                         }
                     }
-                    return 0; // 默認值
+                    return 10; // 默認值
                 })();
                 
-                const initialDLBWPsearchSpaceZero = extractNumber(/searchSpaceZero:\s*(\d+)/);
-                const ul_frequencyBand = extractNumber(/freqBandIndicatorNR:\s*(\d+)/);
-                const ul_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/);
+                const initialDLBWPsearchSpaceZero = extractNumber(/searchSpaceZero:\s*(\d+)/, 0);
+                const ul_frequencyBand = extractNumber(/freqBandIndicatorNR:\s*(\d+)/, 78);
+                const ul_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/, 0);
                 const ul_subcarrierSpacing = 1; // kHz30 (1)
-                const ul_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/);
-                const pMax = extractNumber(/p-Max:\s*(\d+)/);
-                const initialULBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/);
+                const ul_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/, 273);
+                const pMax = extractNumber(/p-Max:\s*(\d+)/, 23);
+                const initialULBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/, 1099);
                 const initialULBWPsubcarrierSpacing = 1; // kHz30 (1)
-                const prach_ConfigurationIndex = extractNumber(/prach-ConfigurationIndex:\s*(\d+)/);
+                const prach_ConfigurationIndex = extractNumber(/prach-ConfigurationIndex:\s*(\d+)/, 98);
                 const prach_msg1_FDM = 0; // one (0)
-                const prach_msg1_FrequencyStart = extractNumber(/msg1-FrequencyStart:\s*(\d+)/);
-                const zeroCorrelationZoneConfig = extractNumber(/zeroCorrelationZoneConfig:\s*(\d+)/);
-                const preambleReceivedTargetPower = extractNumber(/preambleReceivedTargetPower:\s*([-\d]+)/);
+                const prach_msg1_FrequencyStart = extractNumber(/msg1-FrequencyStart:\s*(\d+)/, 0);
+                const zeroCorrelationZoneConfig = extractNumber(/zeroCorrelationZoneConfig:\s*(\d+)/, 13);
+                const preambleReceivedTargetPower = extractNumber(/preambleReceivedTargetPower:\s*([-\d]+)/, -90);
                 const preambleTransMax = 6; // n10 (6)
-                const powerRampingStep = 1; // dB2 (1)
+                const powerRampingStep = extractNumber(/powerRampingStep:\s*dB(\d+)/, 2);
                 const ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR = 4; // one (3) -> 4
                 
                 // 修正：動態提取 ssb_perRACH_OccasionAndCB_PreamblesPerSSB
@@ -572,25 +605,93 @@
                 const msg1_SubcarrierSpacing = 1; // kHz30 (1)
                 const restrictedSetConfig = 0; // unrestrictedSet (0)
                 const msg3_DeltaPreamble = 1; // 2dB (1)
-                const p0_NominalWithGrant = extractNumber(/p0-NominalWithGrant:\s*([-\d]+)/);
+                const p0_NominalWithGrant = extractNumber(/p0-NominalWithGrant:\s*([-\d]+)/, -96);
                 const pucchGroupHopping = 0; // neither (0)
-                const hoppingId = extractNumber(/hoppingId:\s*(\d+)/);
-                const p0_nominal = extractNumber(/p0-nominal:\s*([-\d]+)/);
-                const ssb_PositionsInBurst_Bitmap = 1; // inOneGroup: 80 [bit length 8, ... decimal value 128] -> 1
+                const hoppingId = extractNumber(/hoppingId:\s*(\d+)/, 40);
+                const p0_nominal = extractNumber(/p0-nominal:\s*([-\d]+)/, -96);
+                const ssb_PositionsInBurst_Bitmap = (() => {
+                    const match = input.match(/inOneGroup:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 1;
+                })();
                 const ssb_periodicityServingCell = 2; // ms20 (2)
                 const dmrs_TypeA_Position = 0; // pos2 (0)
                 const subcarrierSpacing = 1; // kHz30 (1)
                 const referenceSubcarrierSpacing = 1; // kHz30 (1)
-                const dl_UL_TransmissionPeriodicity = 6; // ms5 (6)
-                const nrofDownlinkSlots = extractNumber(/nrofDownlinkSlots:\s*(\d+)/);
-                const nrofDownlinkSymbols = extractNumber(/nrofDownlinkSymbols:\s*(\d+)/);
-                const nrofUplinkSlots = extractNumber(/nrofUplinkSlots:\s*(\d+)/);
-                const nrofUplinkSymbols = extractNumber(/nrofUplinkSymbols:\s*(\d+)/);
-                const ssPBCH_BlockPower = extractNumber(/ss-PBCH-BlockPower:\s*([-\d]+)/);
+                
+                // 提取TDD配置
+                const extractTDDConfig = () => {
+                    const tddConfig = {
+                        pattern1: {},
+                        pattern2: null
+                    };
+
+                    // 提取 pattern1
+                    const pattern1Match = input.match(/pattern1\s*dl-UL-TransmissionPeriodicity:\s*[^(]*\((\d+)\)\s*nrofDownlinkSlots:\s*(\d+)\s*nrofDownlinkSymbols:\s*(\d+)\s*nrofUplinkSlots:\s*(\d+)\s*nrofUplinkSymbols:\s*(\d+)/);
+                    if (pattern1Match) {
+                        tddConfig.pattern1 = {
+                            dl_UL_TransmissionPeriodicity: parseInt(pattern1Match[1], 10),
+                            nrofDownlinkSlots: parseInt(pattern1Match[2], 10),
+                            nrofDownlinkSymbols: parseInt(pattern1Match[3], 10),
+                            nrofUplinkSlots: parseInt(pattern1Match[4], 10),
+                            nrofUplinkSymbols: parseInt(pattern1Match[5], 10)
+                        };
+                    }
+
+                    // 提取 pattern2（如果存在）
+                    const pattern2Match = input.match(/pattern2\s*dl-UL-TransmissionPeriodicity:\s*[^(]*\((\d+)\)\s*nrofDownlinkSlots:\s*(\d+)\s*nrofDownlinkSymbols:\s*(\d+)\s*nrofUplinkSlots:\s*(\d+)\s*nrofUplinkSymbols:\s*(\d+)/);
+                    if (pattern2Match) {
+                        tddConfig.pattern2 = {
+                            dl_UL_TransmissionPeriodicity: parseInt(pattern2Match[1], 10),
+                            nrofDownlinkSlots: parseInt(pattern2Match[2], 10),
+                            nrofDownlinkSymbols: parseInt(pattern2Match[3], 10),
+                            nrofUplinkSlots: parseInt(pattern2Match[4], 10),
+                            nrofUplinkSymbols: parseInt(pattern2Match[5], 10)
+                        };
+                    }
+
+                    return tddConfig;
+                };
+
+                const tddConfig = extractTDDConfig();
+                const ssPBCH_BlockPower = extractNumber(/ss-PBCH-BlockPower:\s*([-\d]+)/, -25);
 
                 // 修正的十六進制轉換
                 const gNB_ID_hex = '0x' + (gNB_DU_ID).toString(16);
                 const gNB_DU_ID_hex = '0x' + (gNB_DU_ID).toString(16);
+
+                // 構建TDD配置部分
+                const buildTDDConfig = () => {
+                    let tddOutput = `  #tdd-UL-DL-ConfigurationCommon
+# subcarrierSpacing
+# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+      referenceSubcarrierSpacing                                   = ${referenceSubcarrierSpacing};
+
+      # pattern1
+      # dl_UL_TransmissionPeriodicity
+      # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
+      # ext: 8=ms3, 9=ms4
+      dl_UL_TransmissionPeriodicity                                = ${tddConfig.pattern1.dl_UL_TransmissionPeriodicity || 5};
+      nrofDownlinkSlots                                            = ${tddConfig.pattern1.nrofDownlinkSlots || 3};
+      nrofDownlinkSymbols                                          = ${tddConfig.pattern1.nrofDownlinkSymbols || 10};
+      nrofUplinkSlots                                              = ${tddConfig.pattern1.nrofUplinkSlots || 1};
+      nrofUplinkSymbols                                            = ${tddConfig.pattern1.nrofUplinkSymbols || 2};`;
+
+                    // 如果有pattern2，添加pattern2配置
+                    if (tddConfig.pattern2) {
+                        tddOutput += `
+
+      # pattern2
+      pattern2: {
+        dl_UL_TransmissionPeriodicity2                             = ${tddConfig.pattern2.dl_UL_TransmissionPeriodicity};
+        nrofDownlinkSlots2                                         = ${tddConfig.pattern2.nrofDownlinkSlots};
+        nrofDownlinkSymbols2                                       = ${tddConfig.pattern2.nrofDownlinkSymbols};
+        nrofUplinkSlots2                                           = ${tddConfig.pattern2.nrofUplinkSlots};
+        nrofUplinkSymbols2                                         = ${tddConfig.pattern2.nrofUplinkSymbols};
+      };`;
+                    }
+
+                    return tddOutput;
+                };
 
                 // 構建OAI配置 - 使用修正的十六進制值
                 return `Active_gNBs = ( "${gNB_DU_Name}");
@@ -613,7 +714,7 @@ gNBs =
 
     ////////// Physical parameters:
 
-    min_rxtxtime = 4;
+    min_rxtxtime = 6;
 
     servingCellConfigCommon = (
     {
@@ -719,19 +820,7 @@ gNBs =
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
       subcarrierSpacing                                            = ${subcarrierSpacing};
 
-
-  #tdd-UL-DL-ConfigurationCommon
-# subcarrierSpacing
-# 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
-      referenceSubcarrierSpacing                                   = ${referenceSubcarrierSpacing};
-      # pattern1
-      # dl_UL_TransmissionPeriodicity
-      # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
-      dl_UL_TransmissionPeriodicity                                = ${dl_UL_TransmissionPeriodicity};
-      nrofDownlinkSlots                                            = ${nrofDownlinkSlots};
-      nrofDownlinkSymbols                                          = ${nrofDownlinkSymbols};
-      nrofUplinkSlots                                              = ${nrofUplinkSlots};
-      nrofUplinkSymbols                                            = ${nrofUplinkSymbols};
+${buildTDDConfig()}
 
       ssPBCH_BlockPower                                            = ${ssPBCH_BlockPower};
      }
