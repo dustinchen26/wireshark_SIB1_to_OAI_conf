@@ -380,7 +380,7 @@
                                                                                             zeroCorrelationZoneConfig: 13
                                                                                             preambleReceivedTargetPower: -90 dBm
                                                                                             preambleTransMax: n10 (6)
-                                                                                            powerRampingStep: dB4 (2)
+                                                                                            powerRampingStep: dB2 (1)
                                                                                             ra-ResponseWindow: sl20 (5)
                                                                                         ssb-perRACH-OccasionAndCB-PreamblesPerSSB: one (3)
                                                                                             one: n60 (14)
@@ -585,7 +585,13 @@
                 const zeroCorrelationZoneConfig = extractNumber(/zeroCorrelationZoneConfig:\s*(\d+)/, 13);
                 const preambleReceivedTargetPower = extractNumber(/preambleReceivedTargetPower:\s*([-\d]+)/, -90);
                 const preambleTransMax = 6; // n10 (6)
-                const powerRampingStep = extractNumber(/powerRampingStep:\s*dB(\d+)/, 2);
+                
+                // 修正：提取 powerRampingStep 括號內的數字
+                const powerRampingStep = (() => {
+                    const match = input.match(/powerRampingStep:\s*[^(]*\((\d+)\)/);
+                    return match ? parseInt(match[1], 10) : 1;
+                })();
+                
                 const ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR = 4; // one (3) -> 4
                 
                 // 修正：動態提取 ssb_perRACH_OccasionAndCB_PreamblesPerSSB
