@@ -373,7 +373,7 @@ gNBs =
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
         initialDLBWPsubcarrierSpacing                             = 1;
       #pdcch-ConfigCommon
-        initialDLBWPcontrolResourceSetZero                        = 6;
+        initialDLBWPcontrolResourceSetZero                        = 12;
         initialDLBWPsearchSpaceZero                               = 0;
 
   #uplinkConfigCommon
@@ -535,4 +535,5 @@ e2_agent = {
   near_ric_ip_addr = "127.0.0.1";
   sm_dir = "/usr/local/lib/flexric/"
 };
+
 ```

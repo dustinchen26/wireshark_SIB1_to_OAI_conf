@@ -523,7 +523,21 @@
                 const dl_carrierBandwidth = extractNumber(/carrierBandwidth:\s*(\d+)/);
                 const initialDLBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/);
                 const initialDLBWPsubcarrierSpacing = 1; // kHz30 (1)
-                const initialDLBWPcontrolResourceSetZero = extractNumber(/controlResourceSetZero:\s*(\d+)/);
+                
+                // 修正：更精確地提取 pdcch-ConfigCommon 底下的 controlResourceSetZero
+                const initialDLBWPcontrolResourceSetZero = (() => {
+                    // 先找到 pdcch-ConfigCommon 的區塊
+                    const pdcchConfigMatch = input.match(/pdcch-ConfigCommon: setup\s*\(1\)([\s\S]*?)(?=pdsch-ConfigCommon|$)/);
+                    if (pdcchConfigMatch) {
+                        const pdcchConfigBlock = pdcchConfigMatch[0];
+                        const controlResourceSetMatch = pdcchConfigBlock.match(/controlResourceSetZero:\s*(\d+)/);
+                        if (controlResourceSetMatch) {
+                            return parseInt(controlResourceSetMatch[1], 10);
+                        }
+                    }
+                    return 0; // 默認值
+                })();
+                
                 const initialDLBWPsearchSpaceZero = extractNumber(/searchSpaceZero:\s*(\d+)/);
                 const ul_frequencyBand = extractNumber(/freqBandIndicatorNR:\s*(\d+)/);
                 const ul_offstToCarrier = extractNumber(/offsetToCarrier:\s*(\d+)/);
