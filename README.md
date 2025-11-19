@@ -1,76 +1,69 @@
 # wireshark_SIB1_to_OAI_conf
+
 online calculator: https://dustinchen26.github.io/wireshark_SIB1_to_OAI_conf
 
 ## Example
 ```
-【Input Wireshark SIB1】
-F1 Application Protocol (F1SetupRequest)
+【範例】底下，
+1. wireshark開啟 ●webTcpdump.pcap
+2. 搜尋 F1AP	F1SetupRequest, MIB, SIB1
+3. 對著 F1 Application Protocol (F1SetupRequest) 按右鍵 Expand Subtree
+4. 對著 F1 Application Protocol (F1SetupRequest) 按右鍵 Copy->All Visible Selected Tree Items
+5. 貼到輸入框
+6. 按下"轉換"得到oai CONF
+7. ●cedar 要修改
+prach_ConfigurationIndex = 147; 改成 75
+dl_absoluteFrequencyPointA = 647484; 改成 644208
+
+【Input Wireshark SIB1 packet】
+F1 Application Protocol (GNBDUConfigurationUpdate)
     F1AP-PDU: initiatingMessage (0)
         initiatingMessage
-            procedureCode: id-F1Setup (1)
+            procedureCode: id-gNBDUConfigurationUpdate (3)
             criticality: reject (0)
             value
-                F1SetupRequest
-                    protocolIEs: 5 items
+                GNBDUConfigurationUpdate
+                    protocolIEs: 2 items
                         Item 0: id-TransactionID
                             ProtocolIE-Field
                                 id: id-TransactionID (78)
                                 criticality: reject (0)
                                 value
-                                    TransactionID: 1
-                        Item 1: id-gNB-DU-ID
+                                    TransactionID: 0
+                        Item 1: id-Served-Cells-To-Modify-List
                             ProtocolIE-Field
-                                id: id-gNB-DU-ID (42)
+                                id: id-Served-Cells-To-Modify-List (62)
                                 criticality: reject (0)
                                 value
-                                    GNB-DU-ID: 3584
-                        Item 2: id-gNB-DU-Name
-                            ProtocolIE-Field
-                                id: id-gNB-DU-Name (45)
-                                criticality: ignore (1)
-                                value
-                                    GNB-DU-Name: du-rfsim
-                        Item 3: id-gNB-DU-Served-Cells-List
-                            ProtocolIE-Field
-                                id: id-gNB-DU-Served-Cells-List (44)
-                                criticality: reject (0)
-                                value
-                                    GNB-DU-Served-Cells-List: 1 item
-                                        Item 0: id-GNB-DU-Served-Cells-Item
+                                    Served-Cells-To-Modify-List: 1 item
+                                        Item 0: id-Served-Cells-To-Modify-Item
                                             ProtocolIE-SingleContainer
-                                                id: id-GNB-DU-Served-Cells-Item (43)
+                                                id: id-Served-Cells-To-Modify-Item (61)
                                                 criticality: reject (0)
                                                 value
-                                                    GNB-DU-Served-Cells-Item
+                                                    Served-Cells-To-Modify-Item
+                                                        oldNRCGI
+                                                            pLMN-Identity: 00f110
+                                                                Mobile Country Code (MCC): Unknown (001)
+                                                                Mobile Network Code (MNC): Unknown (01)
+                                                            nRCellIdentity: 00009e0010 [bit length 36, 4 LSB pad bits, 0000 0000  0000 0000  1001 1110  0000 0000  0001 .... decimal value 647169]
                                                         served-Cell-Information
                                                             nRCGI
                                                                 pLMN-Identity: 00f110
                                                                     Mobile Country Code (MCC): Unknown (001)
                                                                     Mobile Network Code (MNC): Unknown (01)
-                                                                nRCellIdentity: 000bc614e0 [bit length 36, 4 LSB pad bits, 0000 0000  0000 1011  1100 0110  0001 0100  1110 .... decimal value 12345678]
-                                                            nRPCI: 0
-                                                            fiveGS-TAC: 1 (0x000001)
+                                                                nRCellIdentity: 00009e0010 [bit length 36, 4 LSB pad bits, 0000 0000  0000 0000  1001 1110  0000 0000  0001 .... decimal value 647169]
+                                                            nRPCI: 186
                                                             servedPLMNs: 1 item
                                                                 Item 0
                                                                     ServedPLMNs-Item
                                                                         pLMN-Identity: 00f110
                                                                             Mobile Country Code (MCC): Unknown (001)
                                                                             Mobile Network Code (MNC): Unknown (01)
-                                                                        iE-Extensions: 1 item
-                                                                            Item 0
-                                                                                ProtocolExtensionField
-                                                                                    id: 131
-                                                                                    criticality: ignore (1)
-                                                                                    extensionValue
-                                                                                        SliceSupportList: 1 item
-                                                                                            Item 0
-                                                                                                SliceSupportItem
-                                                                                                    sNSSAI
-                                                                                                        sST: 01
                                                             nR-Mode-Info: tDD (1)
                                                                 tDD
                                                                     nRFreqInfo
-                                                                        nRARFCN: 628776
+                                                                        nRARFCN: 647484
                                                                         freqBandListNr: 1 item
                                                                             Item 0
                                                                                 FreqBandNrItem
@@ -78,8 +71,8 @@ F1 Application Protocol (F1SetupRequest)
                                                                                     supportedSULBandList: 0 items
                                                                     transmission-Bandwidth
                                                                         nRSCS: scs30 (1)
-                                                                        nRNRB: nrb106 (14)
-                                                            measurementTimingConfiguration: 101133a4050000
+                                                                        nRNRB: nrb273 (28)
+                                                            measurementTimingConfiguration: 10313ad005010081ec017400
                                                                 MeasurementTimingConfiguration
                                                                     criticalExtensions: c1 (0)
                                                                         c1: measTimingConf (0)
@@ -88,29 +81,50 @@ F1 Application Protocol (F1SetupRequest)
                                                                                     Item 0
                                                                                         MeasTiming
                                                                                             frequencyAndTiming
-                                                                                                carrierFreq: 630048
+                                                                                                carrierFreq: 644736
                                                                                                 ssbSubcarrierSpacing: kHz30 (1)
                                                                                                 ssb-MeasurementTimingConfiguration
                                                                                                     periodicityAndOffset: sf20 (2)
                                                                                                         sf20: 0
-                                                                                                    duration: sf1 (0)
+                                                                                                    duration: sf3 (2)
+                                                                                            ssb-ToMeasure: mediumBitmap (1)
+                                                                                                mediumBitmap: 80 [bit length 8, 1000 0000 decimal value 128]
+                                                                                            physCellId: 186
+                                                            iE-Extensions: 1 item
+                                                                Item 0
+                                                                    ProtocolExtensionField
+                                                                        id: 223
+                                                                        criticality: ignore (1)
+                                                                        extensionValue
+                                                                            BPLMN-ID-Info-List: 1 item
+                                                                                Item 0
+                                                                                    BPLMN-ID-Info-Item
+                                                                                        pLMN-Identity-List: 1 item
+                                                                                            Item 0
+                                                                                                AvailablePLMNList-Item
+                                                                                                    pLMNIdentity: 00f110
+                                                                                                        Mobile Country Code (MCC): Unknown (001)
+                                                                                                        Mobile Network Code (MNC): Unknown (01)
+                                                                                        fiveGS-TAC: 1 (0x000001)
+                                                                                        nr-cell-ID: 00009e0010 [bit length 36, 4 LSB pad bits, 0000 0000  0000 0000  1001 1110  0000 0000  0001 .... decimal value 647169]
                                                         gNB-DU-System-Information
-                                                            mIB-message: 010606
+                                                            mIB-message: 270504
                                                                 MIB
-                                                                    systemFrameNumber: 00 [bit length 6, 2 LSB pad bits, 0000 00.. decimal value 0]
-                                                                    subCarrierSpacingCommon: scs15or60 (0)
+                                                                    systemFrameNumber: 24 [bit length 6, 2 LSB pad bits, 0010 01.. decimal value 9]
+                                                                    subCarrierSpacingCommon: scs30or120 (1)
                                                                     ssb-SubcarrierOffset: 8
                                                                     dmrs-TypeA-Position: pos2 (0)
                                                                     pdcch-ConfigSIB1
-                                                                        controlResourceSetZero: 6
+                                                                        controlResourceSetZero: 5
                                                                         searchSpaceZero: 0
                                                                     cellBarred: barred (0)
                                                                     intraFreqReselection: notAllowed (1)
-                                                                    spare: 80 [bit length 1, 7 LSB pad bits, 1... .... decimal value 1]
-                                                            sIB1-message: 92002808200201000001000bc614ea4213415800009a59c32cd7f816e0804000020106e1004000020106e180400002010001840d2140d8721d330000800009a7273865995188006b5335f7270124e31aa6353270b80143874020b01d80488cdec430
+                                                                    spare: 00 [bit length 1, 7 LSB pad bits, 0... .... decimal value 0]
+                                                            sIB1-message: ba040480410010080000080004f000c004280084086004842680c0000188302259afe80dc1008000088a0001041a42830110243a8002100001886ae044b33a49802a703ab7121f010424e9046e10dc31b8837146cb55706ae8049501d0049405402262a6e628
                                                                 SIB1
                                                                     cellSelectionInfo
-                                                                        q-RxLevMin: -130dBm (-65)
+                                                                        q-RxLevMin: -140dBm (-70)
+                                                                        q-QualMin: -25 dB
                                                                     cellAccessRelatedInfo
                                                                         plmn-IdentityInfoList: 1 item
                                                                             Item 0
@@ -131,8 +145,28 @@ F1 Application Protocol (F1SetupRequest)
                                                                                                     Item 1
                                                                                                         MCC-MNC-Digit: 1
                                                                                     trackingAreaCode: 000001 [bit length 24, 0000 0000  0000 0000  0000 0001 decimal value 1]
-                                                                                    cellIdentity: 000bc614e0 [bit length 36, 4 LSB pad bits, 0000 0000  0000 1011  1100 0110  0001 0100  1110 .... decimal value 12345678]
+                                                                                    cellIdentity: 00009e0010 [bit length 36, 4 LSB pad bits, 0000 0000  0000 0000  1001 1110  0000 0000  0001 .... decimal value 647169]
                                                                                     cellReservedForOperatorUse: notReserved (1)
+                                                                    si-SchedulingInfo
+                                                                        schedulingInfoList: 1 item
+                                                                            Item 0
+                                                                                SchedulingInfo
+                                                                                    si-BroadcastStatus: broadcasting (0)
+                                                                                    si-Periodicity: rf32 (2)
+                                                                                    sib-MappingInfo: 3 items
+                                                                                        Item 0
+                                                                                            SIB-TypeInfo
+                                                                                                type: sibType2 (0)
+                                                                                                valueTag: 0
+                                                                                        Item 1
+                                                                                            SIB-TypeInfo
+                                                                                                type: sibType4 (2)
+                                                                                                valueTag: 0
+                                                                                        Item 2
+                                                                                            SIB-TypeInfo
+                                                                                                type: sibType5 (3)
+                                                                                                valueTag: 0
+                                                                        si-WindowLength: s5 (0)
                                                                     servingCellConfigCommon
                                                                         downlinkConfigCommon
                                                                             frequencyInfoDL
@@ -140,22 +174,22 @@ F1 Application Protocol (F1SetupRequest)
                                                                                     Item 0
                                                                                         NR-MultiBandInfo
                                                                                             freqBandIndicatorNR: 78
-                                                                                offsetToPointA: 86 PRBs
+                                                                                offsetToPointA: 24 PRBs
                                                                                 scs-SpecificCarrierList: 1 item
                                                                                     Item 0
                                                                                         SCS-SpecificCarrier
                                                                                             offsetToCarrier: 0
                                                                                             subcarrierSpacing: kHz30 (1)
-                                                                                            carrierBandwidth: 106
+                                                                                            carrierBandwidth: 273
                                                                             initialDownlinkBWP
                                                                                 genericParameters
-                                                                                    locationAndBandwidth: 28875
+                                                                                    locationAndBandwidth: 1099
                                                                                     subcarrierSpacing: kHz30 (1)
                                                                                 pdcch-ConfigCommon: setup (1)
                                                                                     setup
-                                                                                        controlResourceSetZero: 12
+                                                                                        controlResourceSetZero: 10
                                                                                         searchSpaceZero: 0
-                                                                                        commonSearchSpaceList: 3 items
+                                                                                        commonSearchSpaceList: 1 item
                                                                                             Item 0
                                                                                                 SearchSpace
                                                                                                     searchSpaceId: 1
@@ -166,47 +200,15 @@ F1 Application Protocol (F1SetupRequest)
                                                                                                     nrofCandidates
                                                                                                         aggregationLevel1: n0 (0)
                                                                                                         aggregationLevel2: n0 (0)
-                                                                                                        aggregationLevel4: n2 (2)
-                                                                                                        aggregationLevel8: n0 (0)
-                                                                                                        aggregationLevel16: n0 (0)
-                                                                                                    searchSpaceType: common (0)
-                                                                                                        common
-                                                                                                            dci-Format0-0-AndFormat1-0
-                                                                                            Item 1
-                                                                                                SearchSpace
-                                                                                                    searchSpaceId: 2
-                                                                                                    controlResourceSetId: 0
-                                                                                                    monitoringSlotPeriodicityAndOffset: sl1 (0)
-                                                                                                        sl1: NULL
-                                                                                                    monitoringSymbolsWithinSlot: 8000 [bit length 14, 2 LSB pad bits, 1000 0000  0000 00.. decimal value 8192]
-                                                                                                    nrofCandidates
-                                                                                                        aggregationLevel1: n0 (0)
-                                                                                                        aggregationLevel2: n0 (0)
-                                                                                                        aggregationLevel4: n2 (2)
-                                                                                                        aggregationLevel8: n0 (0)
-                                                                                                        aggregationLevel16: n0 (0)
-                                                                                                    searchSpaceType: common (0)
-                                                                                                        common
-                                                                                                            dci-Format0-0-AndFormat1-0
-                                                                                            Item 2
-                                                                                                SearchSpace
-                                                                                                    searchSpaceId: 3
-                                                                                                    controlResourceSetId: 0
-                                                                                                    monitoringSlotPeriodicityAndOffset: sl1 (0)
-                                                                                                        sl1: NULL
-                                                                                                    monitoringSymbolsWithinSlot: 8000 [bit length 14, 2 LSB pad bits, 1000 0000  0000 00.. decimal value 8192]
-                                                                                                    nrofCandidates
-                                                                                                        aggregationLevel1: n0 (0)
-                                                                                                        aggregationLevel2: n0 (0)
-                                                                                                        aggregationLevel4: n2 (2)
-                                                                                                        aggregationLevel8: n0 (0)
-                                                                                                        aggregationLevel16: n0 (0)
+                                                                                                        aggregationLevel4: n4 (4)
+                                                                                                        aggregationLevel8: n2 (2)
+                                                                                                        aggregationLevel16: n1 (1)
                                                                                                     searchSpaceType: common (0)
                                                                                                         common
                                                                                                             dci-Format0-0-AndFormat1-0
                                                                                         searchSpaceSIB1: 0
-                                                                                        searchSpaceOtherSystemInformation: 3
-                                                                                        pagingSearchSpace: 2
+                                                                                        searchSpaceOtherSystemInformation: 1
+                                                                                        pagingSearchSpace: 1
                                                                                         ra-SearchSpace: 1
                                                                                 pdsch-ConfigCommon: setup (1)
                                                                                     setup
@@ -218,22 +220,22 @@ F1 Application Protocol (F1SetupRequest)
                                                                                             Item 1
                                                                                                 PDSCH-TimeDomainResourceAllocation
                                                                                                     mappingType: typeA (0)
-                                                                                                    startSymbolAndLength: 54
+                                                                                                    startSymbolAndLength: 96
                                                                                             Item 2
                                                                                                 PDSCH-TimeDomainResourceAllocation
                                                                                                     mappingType: typeA (0)
-                                                                                                    startSymbolAndLength: 57
+                                                                                                    startSymbolAndLength: 68
                                                                             bcch-Config
                                                                                 modificationPeriodCoeff: n2 (0)
                                                                             pcch-Config
-                                                                                defaultPagingCycle: rf256 (3)
-                                                                                nAndPagingFrameOffset: quarterT (2)
-                                                                                    quarterT: 1
+                                                                                defaultPagingCycle: rf32 (0)
+                                                                                nAndPagingFrameOffset: oneSixteenthT (4)
+                                                                                    oneSixteenthT: 3
                                                                                 ns: one (2)
-                                                                                firstPDCCH-MonitoringOccasionOfPO: sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT (3)
-                                                                                    sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT: 1 item
+                                                                                firstPDCCH-MonitoringOccasionOfPO: sCS480KHZoneT-SCS120KHZquarterT-SCS60KHZoneEighthT-SCS30KHZoneSixteenthT (5)
+                                                                                    sCS480KHZoneT-SCS120KHZquarterT-SCS60KHZoneEighthT-SCS30KHZoneSixteenthT: 1 item
                                                                                         Item 0
-                                                                                            sCS120KHZoneT-SCS60KHZhalfT-SCS30KHZquarterT-SCS15KHZoneEighthT item: 0
+                                                                                            sCS480KHZoneT-SCS120KHZquarterT-SCS60KHZoneEighthT-SCS30KHZoneSixteenthT item: 2
                                                                         uplinkConfigCommon
                                                                             frequencyInfoUL
                                                                                 scs-SpecificCarrierList: 1 item
@@ -241,52 +243,70 @@ F1 Application Protocol (F1SetupRequest)
                                                                                         SCS-SpecificCarrier
                                                                                             offsetToCarrier: 0
                                                                                             subcarrierSpacing: kHz30 (1)
-                                                                                            carrierBandwidth: 106
-                                                                                p-Max: 20 dBm
+                                                                                            carrierBandwidth: 273
+                                                                                p-Max: 23 dBm
                                                                             initialUplinkBWP
                                                                                 genericParameters
-                                                                                    locationAndBandwidth: 28875
+                                                                                    locationAndBandwidth: 1099
                                                                                     subcarrierSpacing: kHz30 (1)
                                                                                 rach-ConfigCommon: setup (1)
                                                                                     setup
                                                                                         rach-ConfigGeneric
-                                                                                            prach-ConfigurationIndex: 98
+                                                                                            prach-ConfigurationIndex: 147
                                                                                             msg1-FDM: one (0)
-                                                                                            msg1-FrequencyStart: 0
-                                                                                            zeroCorrelationZoneConfig: 13
-                                                                                            preambleReceivedTargetPower: -96 dBm
-                                                                                            preambleTransMax: n10 (6)
-                                                                                            powerRampingStep: dB2 (1)
+                                                                                            msg1-FrequencyStart: 2
+                                                                                            zeroCorrelationZoneConfig: 10
+                                                                                            preambleReceivedTargetPower: -90 dBm
+                                                                                            preambleTransMax: n6 (3)
+                                                                                            powerRampingStep: dB4 (2)
                                                                                             ra-ResponseWindow: sl20 (5)
                                                                                         ssb-perRACH-OccasionAndCB-PreamblesPerSSB: one (3)
-                                                                                            one: n60 (14)
+                                                                                            one: n32 (7)
+                                                                                        groupBconfigured
+                                                                                            ra-Msg3SizeGroupA: b144 (1)
+                                                                                            messagePowerOffsetGroupB: dB0 (1)
+                                                                                            numberOfRA-PreamblesGroupA: 4
                                                                                         ra-ContentionResolutionTimer: sf64 (7)
-                                                                                        rsrp-ThresholdSSB: -138dBm <= SS-RSRP < -137dBm (19)
+                                                                                        rsrp-ThresholdSSB: SS-RSRP < -156dBm (0)
                                                                                         prach-RootSequenceIndex: l139 (1)
-                                                                                            l139: 1
+                                                                                            l139: 4
                                                                                         msg1-SubcarrierSpacing: kHz30 (1)
                                                                                         restrictedSetConfig: unrestrictedSet (0)
                                                                                 pusch-ConfigCommon: setup (1)
                                                                                     setup
-                                                                                        pusch-TimeDomainAllocationList: 2 items
+                                                                                        pusch-TimeDomainAllocationList: 5 items
                                                                                             Item 0
                                                                                                 PUSCH-TimeDomainResourceAllocation
-                                                                                                    k2: 6
-                                                                                                    mappingType: typeB (1)
-                                                                                                    startSymbolAndLength: 41
+                                                                                                    k2: 1
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 27
                                                                                             Item 1
                                                                                                 PUSCH-TimeDomainResourceAllocation
-                                                                                                    k2: 6
-                                                                                                    mappingType: typeB (1)
-                                                                                                    startSymbolAndLength: 38
-                                                                                        msg3-DeltaPreamble: 2dB (1)
-                                                                                        p0-NominalWithGrant: -90 dBm
+                                                                                                    k2: 2
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 27
+                                                                                            Item 2
+                                                                                                PUSCH-TimeDomainResourceAllocation
+                                                                                                    k2: 3
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 27
+                                                                                            Item 3
+                                                                                                PUSCH-TimeDomainResourceAllocation
+                                                                                                    k2: 4
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 27
+                                                                                            Item 4
+                                                                                                PUSCH-TimeDomainResourceAllocation
+                                                                                                    k2: 5
+                                                                                                    mappingType: typeA (0)
+                                                                                                    startSymbolAndLength: 27
+                                                                                        msg3-DeltaPreamble: 0dB (0)
+                                                                                        p0-NominalWithGrant: -96 dBm
                                                                                 pucch-ConfigCommon: setup (1)
                                                                                     setup
-                                                                                        pucch-ResourceCommon: 0
+                                                                                        pucch-ResourceCommon: 12
                                                                                         pucch-GroupHopping: neither (0)
-                                                                                        hoppingId: 40
-                                                                                        p0-nominal: -90 dBm
+                                                                                        p0-nominal: -96 dBm
                                                                             timeAlignmentTimerCommon: infinity (7)
                                                                         ssb-PositionsInBurst
                                                                             inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
@@ -294,36 +314,29 @@ F1 Application Protocol (F1SetupRequest)
                                                                         tdd-UL-DL-ConfigurationCommon
                                                                             referenceSubcarrierSpacing: kHz30 (1)
                                                                             pattern1
-                                                                                dl-UL-TransmissionPeriodicity: ms5 (6)
-                                                                                nrofDownlinkSlots: 7
-                                                                                nrofDownlinkSymbols: 6
+                                                                                dl-UL-TransmissionPeriodicity: ms2p5 (5)
+                                                                                nrofDownlinkSlots: 3
+                                                                                nrofDownlinkSymbols: 10
+                                                                                nrofUplinkSlots: 1
+                                                                                nrofUplinkSymbols: 2
+                                                                            pattern2
+                                                                                dl-UL-TransmissionPeriodicity: ms2p5 (5)
+                                                                                nrofDownlinkSlots: 2
+                                                                                nrofDownlinkSymbols: 10
                                                                                 nrofUplinkSlots: 2
-                                                                                nrofUplinkSymbols: 4
-                                                                        ss-PBCH-BlockPower: -25 dBm
+                                                                                nrofUplinkSymbols: 2
+                                                                        ss-PBCH-BlockPower: -11 dBm
+                                                                    ims-EmergencySupport: true (0)
                                                                     ue-TimersAndConstants
-                                                                        t300: ms400 (3)
-                                                                        t301: ms400 (3)
-                                                                        t310: ms2000 (6)
+                                                                        t300: ms1000 (5)
+                                                                        t301: ms200 (1)
+                                                                        t310: ms1000 (5)
                                                                         n310: n10 (6)
-                                                                        t311: ms3000 (1)
+                                                                        t311: ms10000 (3)
                                                                         n311: n1 (0)
-                                                                        t319: ms400 (3)
-                        Item 4: id-GNB-DU-RRC-Version
-                            ProtocolIE-Field
-                                id: id-GNB-DU-RRC-Version (171)
-                                criticality: reject (0)
-                                value
-                                    RRC-Version
-                                        latest-RRC-Version: 00 [bit length 3, 5 LSB pad bits, 000. .... decimal value 0]
-                                        iE-Extensions: 1 item
-                                            Item 0
-                                                ProtocolExtensionField
-                                                    id: 199
-                                                    criticality: ignore (1)
-                                                    extensionValue
-                                                        17.3.0
+                                                                        t319: ms1000 (5)
 
-【Output OAI_conf】
+【Output OAI conf】
 Active_gNBs = ( "du-rfsim");
 # Asn1_verbosity, choice in: none, info, annoying
 Asn1_verbosity = "none";
@@ -340,40 +353,40 @@ gNBs =
     tracking_area_code  =  1;
     plmn_list = ({ mcc = 001; mnc = 01; mnc_length = 2; snssaiList = ({ sst = 1; }) });
 
-    nr_cellid = 12345678L;
+    nr_cellid = 647169L;
 
     ////////// Physical parameters:
 
-    min_rxtxtime = 4;
+    min_rxtxtime = 6;
 
     servingCellConfigCommon = (
     {
  #spCellConfigCommon
 
-      physCellId                                               = 0;
+      physCellId                                               = 186;
 
 #  downlinkConfigCommon
     #frequencyInfoDL
       # this is 3600 MHz + 43 PRBs@30kHz SCS (same as initial BWP)
-      absoluteFrequencySSB                                      = 630048;
+      absoluteFrequencySSB                                      = 644736;
       dl_frequencyBand                                          = 78;
       # this is 3600 MHz
-      dl_absoluteFrequencyPointA                                = 628776;
+      dl_absoluteFrequencyPointA                                = 647484;
       #scs-SpecificCarrierList
         dl_offstToCarrier                                       = 0;
 # subcarrierSpacing
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
         dl_subcarrierSpacing                                    = 1;
-        dl_carrierBandwidth                                     = 106;
+        dl_carrierBandwidth                                     = 273;
      #initialDownlinkBWP
       #genericParameters
         # this is RBstart=27,L=48 (275*(L-1))+RBstart
-        initialDLBWPlocationAndBandwidth                         = 28875; # 6366 12925 12956 28875 12952
+        initialDLBWPlocationAndBandwidth                         = 1099; # 6366 12925 12956 28875 12952
 # subcarrierSpacing
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
         initialDLBWPsubcarrierSpacing                             = 1;
       #pdcch-ConfigCommon
-        initialDLBWPcontrolResourceSetZero                        = 12;
+        initialDLBWPcontrolResourceSetZero                        = 10;
         initialDLBWPsearchSpaceZero                               = 0;
 
   #uplinkConfigCommon
@@ -384,33 +397,33 @@ gNBs =
 # subcarrierSpacing
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
       ul_subcarrierSpacing                                         = 1;
-      ul_carrierBandwidth                                          = 106;
-      pMax                                                         = 20;
+      ul_carrierBandwidth                                          = 273;
+      pMax                                                         = 23;
      #initialUplinkBWP
       #genericParameters
-        initialULBWPlocationAndBandwidth                           = 28875;
+        initialULBWPlocationAndBandwidth                           = 1099;
 # subcarrierSpacing
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
         initialULBWPsubcarrierSpacing                              = 1;
       #rach-ConfigCommon
         #rach-ConfigGeneric
-          prach_ConfigurationIndex                                 = 98;
+          prach_ConfigurationIndex                                 = 147;
 #prach_msg1_FDM
 #0 = one, 1=two, 2=four, 3=eight
           prach_msg1_FDM                                           = 0;
-          prach_msg1_FrequencyStart                                = 0;
-          zeroCorrelationZoneConfig                                = 13;
-          preambleReceivedTargetPower                              = -96;
+          prach_msg1_FrequencyStart                                = 2;
+          zeroCorrelationZoneConfig                                = 10;
+          preambleReceivedTargetPower                              = -90;
 #preamblTransMax (0...10) = (3,4,5,6,7,8,10,20,50,100,200)
           preambleTransMax                                         = 6;
 #powerRampingStep
 # 0=dB0,1=dB2,2=dB4,3=dB6
-        powerRampingStep                                           = 1;
+        powerRampingStep                                           = 2;
 #ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR
 #1=oneeighth,2=onefourth,3=half,4=one,5=two,6=four,7=eight,8=sixteen
         ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR               = 4;
 #one (0..15) 4,8,12,16,...60,64
-        ssb_perRACH_OccasionAndCB_PreamblesPerSSB                  = 14;
+        ssb_perRACH_OccasionAndCB_PreamblesPerSSB                  = 7;
 #ra_ContentionResolutionTimer
 #(0..7) 8,16,24,32,40,48,56,64
         ra_ContentionResolutionTimer                               = 7;
@@ -427,16 +440,16 @@ gNBs =
         restrictedSetConfig                                        = 0,
 
         msg3_DeltaPreamble                                         = 1;
-        p0_NominalWithGrant                                        =-90;
+        p0_NominalWithGrant                                        =-96;
 
 # pucch-ConfigCommon setup :
 # pucchGroupHopping
 # 0 = neither, 1= group hopping, 2=sequence hopping
         pucchGroupHopping                                          = 0;
         hoppingId                                                  = 40;
-        p0_nominal                                                 = -90;
+        p0_nominal                                                 = -96;
 
-      ssb_PositionsInBurst_Bitmap                                  = 1;
+      ssb_PositionsInBurst_Bitmap                                  = 128;
 
 # ssb_periodicityServingCell
 # 0 = ms5, 1=ms10, 2=ms20, 3=ms40, 4=ms80, 5=ms160, 6=spare2, 7=spare1
@@ -450,21 +463,31 @@ gNBs =
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
       subcarrierSpacing                                            = 1;
 
-
   #tdd-UL-DL-ConfigurationCommon
 # subcarrierSpacing
 # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
       referenceSubcarrierSpacing                                   = 1;
+
       # pattern1
       # dl_UL_TransmissionPeriodicity
       # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
-      dl_UL_TransmissionPeriodicity                                = 6;
-      nrofDownlinkSlots                                            = 7;
-      nrofDownlinkSymbols                                          = 6;
-      nrofUplinkSlots                                              = 2;
-      nrofUplinkSymbols                                            = 4;
+      # ext: 8=ms3, 9=ms4
+      dl_UL_TransmissionPeriodicity                                = 5;
+      nrofDownlinkSlots                                            = 3;
+      nrofDownlinkSymbols                                          = 10;
+      nrofUplinkSlots                                              = 1;
+      nrofUplinkSymbols                                            = 2;
 
-      ssPBCH_BlockPower                                            = -25;
+      # pattern2
+      pattern2: {
+        dl_UL_TransmissionPeriodicity2                             = 5;
+        nrofDownlinkSlots2                                         = 2;
+        nrofDownlinkSymbols2                                       = 10;
+        nrofUplinkSlots2                                           = 2;
+        nrofUplinkSymbols2                                         = 2;
+      };
+
+      ssPBCH_BlockPower                                            = -11;
      }
 
   );
@@ -536,4 +559,7 @@ e2_agent = {
   sm_dir = "/usr/local/lib/flexric/"
 };
 
+要修改
+prach_ConfigurationIndex = 147; 改成 75
+dl_absoluteFrequencyPointA = 647484; 改成 644208
 ```

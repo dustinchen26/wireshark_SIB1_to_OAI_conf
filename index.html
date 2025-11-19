@@ -153,7 +153,7 @@
             const exampleBtn = document.getElementById('exampleBtn');
             const statusMessage = document.getElementById('statusMessage');
             
-            // 範例資料 - 更新為最新的輸入
+            // 範例資料 - 更新為包含正確的 ssb-PositionsInBurst 格式
             const exampleData = `F1 Application Protocol (F1SetupRequest)
     F1AP-PDU: initiatingMessage (0)
         initiatingMessage
@@ -434,7 +434,7 @@
                                                                                         p0-nominal: -96 dBm
                                                                             timeAlignmentTimerCommon: infinity (7)
                                                                         ssb-PositionsInBurst
-                                                                            inOneGroup: 01 [bit length 8, 0000 0001 decimal value 1]
+                                                                            inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
                                                                         ssb-PeriodicityServingCell: ms20 (2)
                                                                         tdd-UL-DL-ConfigurationCommon
                                                                             referenceSubcarrierSpacing: kHz30 (1)
@@ -641,10 +641,13 @@
                 const pucchGroupHopping = 0; // neither (0)
                 const hoppingId = extractNumber(/hoppingId:\s*(\d+)/, 40);
                 const p0_nominal = extractNumber(/p0-nominal:\s*([-\d]+)/, -96);
+                
+                // 修正：提取 ssb_PositionsInBurst_Bitmap - 現在提取 decimal value 後面的數字
                 const ssb_PositionsInBurst_Bitmap = (() => {
-                    const match = input.match(/inOneGroup:\s*(\d+)/);
+                    const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
                     return match ? parseInt(match[1], 10) : 1;
                 })();
+                
                 const ssb_periodicityServingCell = 2; // ms20 (2)
                 const dmrs_TypeA_Position = 0; // pos2 (0)
                 const subcarrierSpacing = 1; // kHz30 (1)
