@@ -654,23 +654,36 @@
                 const hoppingId = extractNumber(/hoppingId:\s*(\d+)/, 40);
                 const p0_nominal = extractNumber(/p0-nominal:\s*([-\d]+)/, -96);
                 
-                // 修正：提取 ssb_PositionsInBurst_Bitmap - 現在提取 decimal value 後面的數字
-                const ssb_PositionsInBurst_Bitmap = (() => {
-                    const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
-                    return match ? parseInt(match[1], 10) : 1;
-                })();
-                
-                const ssb_periodicityServingCell = 2; // ms20 (2)
-                const dmrs_TypeA_Position = 0; // pos2 (0)
-                const subcarrierSpacing = 1; // kHz30 (1)
-                const referenceSubcarrierSpacing = 1; // kHz30 (1)
-                
                 // 新增：提取 bands 參數
                 const bands = (() => {
                     // 嘗試從 freqBandIndicatorNr 提取
                     const match = input.match(/freqBandIndicatorNr:\s*(\d+)/);
                     return match ? parseInt(match[1], 10) : 78; // 默認值為 78
                 })();
+                
+                // 修正：根據頻段提取 ssb_PositionsInBurst_Bitmap
+                const ssb_PositionsInBurst_Bitmap = (() => {
+                    // 如果是 Band 78，取後面的 decimal value
+                    if (bands === 78) {
+                        const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
+                        return match ? parseInt(match[1], 10) : 128;
+                    } 
+                    // 如果是 Band 79，取前面的數字
+                    else if (bands === 79) {
+                        const match = input.match(/inOneGroup:\s*(\d+)/);
+                        return match ? parseInt(match[1], 10) : 80;
+                    }
+                    // 其他頻段，預設取後面的 decimal value
+                    else {
+                        const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
+                        return match ? parseInt(match[1], 10) : 1;
+                    }
+                })();
+                
+                const ssb_periodicityServingCell = 2; // ms20 (2)
+                const dmrs_TypeA_Position = 0; // pos2 (0)
+                const subcarrierSpacing = 1; // kHz30 (1)
+                const referenceSubcarrierSpacing = 1; // kHz30 (1)
                 
                 // 提取TDD配置 - 修復版本
                 const extractTDDConfig = () => {
