@@ -1,3 +1,24 @@
+<!-- 
+  Copyright © [2024] [Dustin_Chen]. All rights reserved.
+  Author: Dustin Chen
+  Email:  chuhpsdustin@gmail.com
+
+(1) ssb_PositionsInBurst_Bitmap
+1. 如果是Band 78例如
+ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
+則數字取後面 OAI conf => ssb_PositionsInBurst_Bitmap = 128;#
+
+2. 如果是Band 79例如
+ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
+則數字取前面 OAI conf =>ssb_PositionsInBurst_Bitmap = 80;#
+
+(2) cedar用wireshark轉出來要改參數
+cedar wireshark SIB1 轉成 OAI conf 
+1. dl_absoluteFrequencyPointA = 647484 改成 644208 //因為wireshark裡面的數值不是真正pointA是DLearfcn
+2. prach_ConfigurationIndex = 147 改成 75 //因為OAI特別限制Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
+                                          //計算：2 + 1 * 12 = 14 < 14
+-->
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
