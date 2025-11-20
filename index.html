@@ -653,14 +653,21 @@
                 const subcarrierSpacing = 1; // kHz30 (1)
                 const referenceSubcarrierSpacing = 1; // kHz30 (1)
                 
-                // 提取TDD配置
+                // 新增：提取 bands 參數
+                const bands = (() => {
+                    // 嘗試從 freqBandIndicatorNr 提取
+                    const match = input.match(/freqBandIndicatorNr:\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 78; // 默認值為 78
+                })();
+                
+                // 提取TDD配置 - 修復版本
                 const extractTDDConfig = () => {
                     const tddConfig = {
                         pattern1: {},
                         pattern2: null
                     };
 
-                    // 提取 pattern1
+                    // 提取 pattern1 - 修復正則表達式以正確匹配0值
                     const pattern1Match = input.match(/pattern1\s*dl-UL-TransmissionPeriodicity:\s*[^(]*\((\d+)\)\s*nrofDownlinkSlots:\s*(\d+)\s*nrofDownlinkSymbols:\s*(\d+)\s*nrofUplinkSlots:\s*(\d+)\s*nrofUplinkSymbols:\s*(\d+)/);
                     if (pattern1Match) {
                         tddConfig.pattern1 = {
@@ -669,6 +676,15 @@
                             nrofDownlinkSymbols: parseInt(pattern1Match[3], 10),
                             nrofUplinkSlots: parseInt(pattern1Match[4], 10),
                             nrofUplinkSymbols: parseInt(pattern1Match[5], 10)
+                        };
+                    } else {
+                        // 如果沒有匹配到，使用默認值
+                        tddConfig.pattern1 = {
+                            dl_UL_TransmissionPeriodicity: 5,
+                            nrofDownlinkSlots: 3,
+                            nrofDownlinkSymbols: 10,
+                            nrofUplinkSlots: 1,
+                            nrofUplinkSymbols: 2
                         };
                     }
 
@@ -705,11 +721,11 @@
       # dl_UL_TransmissionPeriodicity
       # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
       # ext: 8=ms3, 9=ms4
-      dl_UL_TransmissionPeriodicity                                = ${tddConfig.pattern1.dl_UL_TransmissionPeriodicity || 5};
-      nrofDownlinkSlots                                            = ${tddConfig.pattern1.nrofDownlinkSlots || 3};
-      nrofDownlinkSymbols                                          = ${tddConfig.pattern1.nrofDownlinkSymbols || 10};
-      nrofUplinkSlots                                              = ${tddConfig.pattern1.nrofUplinkSlots || 1};
-      nrofUplinkSymbols                                            = ${tddConfig.pattern1.nrofUplinkSymbols || 2};`;
+      dl_UL_TransmissionPeriodicity                                = ${tddConfig.pattern1.dl_UL_TransmissionPeriodicity};
+      nrofDownlinkSlots                                            = ${tddConfig.pattern1.nrofDownlinkSlots};
+      nrofDownlinkSymbols                                          = ${tddConfig.pattern1.nrofDownlinkSymbols};
+      nrofUplinkSlots                                              = ${tddConfig.pattern1.nrofUplinkSlots};
+      nrofUplinkSymbols                                            = ${tddConfig.pattern1.nrofUplinkSymbols};`;
 
                     // 如果有pattern2，添加pattern2配置
                     if (tddConfig.pattern2) {
@@ -897,7 +913,7 @@ RUs = ({
     nb_rx          = 1
     att_tx         = 0
     att_rx         = 0;
-    bands          = [78];
+    bands          = [${bands}];
     max_pdschReferenceSignalPower = -27;
     max_rxgain                    = 114;
     eNB_instances  = [0];
