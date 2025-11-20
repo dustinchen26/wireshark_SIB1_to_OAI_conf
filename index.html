@@ -583,9 +583,10 @@
                 const initialDLBWPlocationAndBandwidth = extractNumber(/locationAndBandwidth:\s*(\d+)/, 1099);
                 const initialDLBWPsubcarrierSpacing = 1; // kHz30 (1)
                 
-                // 修正：更精確地提取 pdcch-ConfigCommon 底下的 controlResourceSetZero
+                // 修正：更精確地提取 initialDLBWPcontrolResourceSetZero
+                // 優先從 pdcch-ConfigCommon 中提取，如果沒有則從 MIB 的 pdcch-ConfigSIB1 中提取
                 const initialDLBWPcontrolResourceSetZero = (() => {
-                    // 先找到 pdcch-ConfigCommon 的區塊
+                    // 先嘗試從 pdcch-ConfigCommon 中提取
                     const pdcchConfigMatch = input.match(/pdcch-ConfigCommon: setup\s*\(1\)([\s\S]*?)(?=pdsch-ConfigCommon|$)/);
                     if (pdcchConfigMatch) {
                         const pdcchConfigBlock = pdcchConfigMatch[0];
@@ -594,6 +595,17 @@
                             return parseInt(controlResourceSetMatch[1], 10);
                         }
                     }
+                    
+                    // 如果 pdcch-ConfigCommon 中沒有，則從 MIB 的 pdcch-ConfigSIB1 中提取
+                    const mibMatch = input.match(/MIB([\s\S]*?)sIB1-message/);
+                    if (mibMatch) {
+                        const mibBlock = mibMatch[0];
+                        const controlResourceSetMatch = mibBlock.match(/controlResourceSetZero:\s*(\d+)/);
+                        if (controlResourceSetMatch) {
+                            return parseInt(controlResourceSetMatch[1], 10);
+                        }
+                    }
+                    
                     return 10; // 默認值
                 })();
                 
