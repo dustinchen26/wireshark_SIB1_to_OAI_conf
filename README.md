@@ -5,19 +5,74 @@ online calculator: https://dustinchen26.github.io/wireshark_SIB1_to_OAI_conf
 ## Note 特別修改
 ```
 (1) ssb_PositionsInBurst_Bitmap
-1. 如果是Band 78例如
 ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
-則數字取後面 OAI conf => ssb_PositionsInBurst_Bitmap = 128;#
+取後面 OAI conf => ssb_PositionsInBurst_Bitmap = 128;#
 
-2. 如果是Band 79例如
-ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
-則數字取前面 OAI conf =>ssb_PositionsInBurst_Bitmap = 80;#
+(2) cedar webTcpdump.pcap 顯示的數值是DLearfcn，
+真正的 PointA 要看 confdb_v2.xml
+所以 647484 改成 644208，填入OAI conf
 
-(2) cedar用wireshark轉出來要改參數
-cedar wireshark SIB1 轉成 OAI conf 
-1. dl_absoluteFrequencyPointA = 647484 改成 644208 //因為wireshark裡面的數值不是真正pointA是DLearfcn
-2. prach_ConfigurationIndex = 147 改成 75 //因為OAI特別限制Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
-                                          //計算：2 + 1 * 12 = 14 < 14
+//●webTcpdump.pcap
+nRFreqInfo
+    nRARFCN: 647484●
+    freqBandListNr: 1 item
+        Item 0
+            FreqBandNrItem
+                freqBandIndicatorNr: 78
+                supportedSULBandList: 0 items
+frequencyAndTiming
+    carrierFreq: 644736●
+    ssbSubcarrierSpacing: kHz30 (1)
+    ssb-MeasurementTimingConfiguration
+        periodicityAndOffset: sf20 (2)
+            sf20: 0
+        duration: sf3 (2)
+
+//●confdb_v2.xml
+<NRARFCNDL>647484</NRARFCNDL>
+<AbsoluteFrequencySSB>644736</AbsoluteFrequencySSB>
+<AbsoluteFrequencyPointA>644208</AbsoluteFrequencyPointA>
+
+(3) OAI的特殊限制，要改code才能讓prach_ConfigurationIndex = 147 和 198 可以 Run
+OAI特別限制Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
+//ETSI TS 138 211 Table 6.3.3.2-3: Random access configurations for FR1 and unpaired spectrum.  
+=> 198  C2  2  1  2,3,4,7,8,9  2  1  2  6 
+PRACH Configuration Index =198 #
+Preamble format = C2 #
+n_SFN mod x = y, (x,y)=(2,1)#
+Subframe number =  2,3,4,7,8,9 #
+Starting symbol = 2, #start_symbol 
+Number of PRACH slots within a subframe = 1, #
+N number of time-domain PRACH occasions within a PRACH slot = 2, #N_t_slot
+N PRACH duration = 6 #N_dur
+(prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14)
+2 + 2 * 6 = 2 + 12 = 14，這等於14，而斷言要求小於14，所以失敗。
+
+3GPP：✔ 可以落在 symbol 13，只要 subframe scheduling OK。
+
+● 修改OAI重新build
+(Step1).修改程式碼 /home/dustin/openairinterface5g/openair2/GNB_APP/gnb_config.c
+// 註解掉
+/*  AssertFatal(prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14,
+              "PRACH with configuration index %ld goes to the last symbol of the slot, for optimal performance pick another index. "
+              "See Tables 6.3.3.2-2 to 6.3.3.2-4 in 38.211\n",
+              config_index);
+*/
+
+// 改成顯示參數
+{
+// Dustin_fix prach index = 198
+if (!(prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14)) {
+LOG_W(GNB_APP,
+      "PRACH start_symbol=%d, N_t_slot=%d, N_dur=%d, config_index=%d\n",
+      prach_info.start_symbol,
+      prach_info.N_t_slot,
+      prach_info.N_dur,
+      config_index);
+}
+
+(Step2).重新build:
+./build_oai_simplified.sh
 ```
 ## Example
 ```

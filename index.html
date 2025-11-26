@@ -2,23 +2,7 @@
   Copyright © [2024] [Dustin_Chen]. All rights reserved.
   Author: Dustin Chen
   Email:  chuhpsdustin@gmail.com
-
-(1) ssb_PositionsInBurst_Bitmap
-1. 如果是Band 78例如
-ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
-則數字取後面 OAI conf => ssb_PositionsInBurst_Bitmap = 128;#
-
-2. 如果是Band 79例如
-ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
-則數字取前面 OAI conf =>ssb_PositionsInBurst_Bitmap = 80;#
-
-(2) cedar用wireshark轉出來要改參數
-cedar wireshark SIB1 轉成 OAI conf 
-1. dl_absoluteFrequencyPointA = 647484 改成 644208 //因為wireshark裡面的數值不是真正pointA是DLearfcn
-2. prach_ConfigurationIndex = 147 改成 75 //因為OAI特別限制Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
-                                          //計算：2 + 1 * 12 = 14 < 14
 -->
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -682,23 +666,10 @@ cedar wireshark SIB1 轉成 OAI conf
                     return match ? parseInt(match[1], 10) : 78; // 默認值為 78
                 })();
                 
-                // 修正：根據頻段提取 ssb_PositionsInBurst_Bitmap
+                // 修改：統一取後面的 decimal value，不再區分頻段
                 const ssb_PositionsInBurst_Bitmap = (() => {
-                    // 如果是 Band 78，取後面的 decimal value
-                    if (bands === 78) {
-                        const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
-                        return match ? parseInt(match[1], 10) : 128;
-                    } 
-                    // 如果是 Band 79，取前面的數字
-                    else if (bands === 79) {
-                        const match = input.match(/inOneGroup:\s*(\d+)/);
-                        return match ? parseInt(match[1], 10) : 80;
-                    }
-                    // 其他頻段，預設取後面的 decimal value
-                    else {
-                        const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
-                        return match ? parseInt(match[1], 10) : 1;
-                    }
+                    const match = input.match(/inOneGroup:[^[]*\[[^\]]*decimal value\s*(\d+)/);
+                    return match ? parseInt(match[1], 10) : 128;
                 })();
                 
                 const ssb_periodicityServingCell = 2; // ms20 (2)
