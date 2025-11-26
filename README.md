@@ -5,8 +5,8 @@ online calculator: https://dustinchen26.github.io/wireshark_SIB1_to_OAI_conf
 ## Note 特別修改
 ```
 (1) ssb_PositionsInBurst_Bitmap
-ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
-取後面 OAI conf => ssb_PositionsInBurst_Bitmap = 128;#
+webTcpdump.pcap SIB1顯示=> ssb-PositionsInBurst inOneGroup: 80 [bit length 8, 1000 0000 decimal value 128]
+OAI conf 取後面 decimal value => ssb_PositionsInBurst_Bitmap = 128;#
 
 (2) cedar webTcpdump.pcap 顯示的數值是DLearfcn，
 真正的 PointA 要看 confdb_v2.xml
@@ -34,7 +34,12 @@ frequencyAndTiming
 <AbsoluteFrequencyPointA>644208</AbsoluteFrequencyPointA>
 
 (3) OAI的特殊限制，要改code才能讓prach_ConfigurationIndex = 147 和 198 可以 Run
-OAI特別限制Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
+////沒改OAI原始Code會crash
+Assertion (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14) failed!
+In fix_scc() /home/dustin/openairinterface5g/openair2/GNB_APP/gnb_config.c:568
+PRACH with configuration index 198 goes to the last symbol of the slot, for optimal performance pick another index. See Tables 6.3.3.2-2 to 6.3.3.2-4 in 38.211
+
+////實際計算為何會有問題
 //ETSI TS 138 211 Table 6.3.3.2-3: Random access configurations for FR1 and unpaired spectrum.  
 => 198  C2  2  1  2,3,4,7,8,9  2  1  2  6 
 PRACH Configuration Index =198 #
@@ -45,21 +50,24 @@ Starting symbol = 2, #start_symbol
 Number of PRACH slots within a subframe = 1, #
 N number of time-domain PRACH occasions within a PRACH slot = 2, #N_t_slot
 N PRACH duration = 6 #N_dur
+
+////計算
 (prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14)
 2 + 2 * 6 = 2 + 12 = 14，這等於14，而斷言要求小於14，所以失敗。
+```
+## 修改OAI code
+```
+1. 修改程式碼 
+/home/dustin/openairinterface5g/openair2/GNB_APP/gnb_config.c
 
-3GPP：✔ 可以落在 symbol 13，只要 subframe scheduling OK。
-
-● 修改OAI重新build
-(Step1).修改程式碼 /home/dustin/openairinterface5g/openair2/GNB_APP/gnb_config.c
-// 註解掉
+///////// 註解掉
 /*  AssertFatal(prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14,
               "PRACH with configuration index %ld goes to the last symbol of the slot, for optimal performance pick another index. "
               "See Tables 6.3.3.2-2 to 6.3.3.2-4 in 38.211\n",
               config_index);
 */
 
-// 改成顯示參數
+///////// 改成顯示參數
 {
 // Dustin_fix prach index = 198
 if (!(prach_info.start_symbol + prach_info.N_t_slot * prach_info.N_dur < 14)) {
@@ -71,9 +79,10 @@ LOG_W(GNB_APP,
       config_index);
 }
 
-(Step2).重新build:
-./build_oai_simplified.sh
+2. 重新build
+build_oai_simplified.sh
 ```
+
 ## Example
 ```
 【範例】底下，
